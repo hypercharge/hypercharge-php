@@ -1,0 +1,23 @@
+{
+	"name":"hypercharge/hypercharge-php",
+	"description":"Hypercharge PHP Library / SDK",
+	"keywords": ["hypercharge", "payment", "api", "sdk"],
+	"hompage":"http://hypercharge.net",
+	"license":"MIT",
+	"require": {
+		"php": ">=5.3",
+		"ext-curl": "*",
+		"ext-hash": "*",
+		"ext-simplexml": "*",
+		"ext-dom": "*",
+		"hypercharge/hypercharge-schema": "~1.24.0"
+	},
+	"require-dev": {
+		"vierbergenlars/simpletest": "*",
+		"mockery/mockery": "dev-master@dev"
+	},
+  "autoload": {
+    "classmap": ["lib/Hypercharge/"]
+    ,"files": ["lib/Hypercharge/errors.php"]
+  }
+}

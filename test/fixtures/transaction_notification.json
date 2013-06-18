@@ -1,0 +1,8 @@
+{
+	"transaction_type": "sale"
+	,"transaction_id": "the-id-provided-by-merchant-aadfasdfadf"
+	,"unique_id": "fc6c3c8c0219730c7a099eaa540f70dc"
+	,"channel_token": "the-channel-token-o234uouizeiz2492834792"
+	,"status": "approved"
+	,"signature":"08d01ae1ebdc22b6a1a764257819bb26e9e94e8d"
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment_responses per_page="100" total_count="2" pages_count="1" page="1">
+  <payment_response>
+    <transaction_type>sale</transaction_type>
+    <status>refunded</status>
+    <unique_id>84f1c8d8cc79fca7379d19c9cf62f08d</unique_id>
+    <transaction_id>0AF671AF-4134-4BE7-BDF0-26E38B74106E---b0541bc0a51001303d09542696cde09d</transaction_id>
+    <technical_message>TESTMODE: No real money will be transferred!</technical_message>
+    <message>TESTMODE: No real money will be transferred!</message>
+    <mode>test</mode>
+    <timestamp>2013-05-22T13:21:52Z</timestamp>
+    <descriptor>sankyu.com/bogus +49123456789</descriptor>
+    <amount>5000</amount>
+    <currency>USD</currency>
+  </payment_response>
+  <payment_response>
+    <transaction_type>refund</transaction_type>
+    <status>error</status>
+    <unique_id>0a0f8d7c71b0f45471291f25c60c694f</unique_id>
+    <transaction_id>0AF671AF-4134-4BE7-BDF0-26E38B74106E---b0541bc0a51001303d09542696cde09d-1</transaction_id>
+    <code>100</code>
+    <technical_message>Unknown system error! Please contact support!</technical_message>
+    <message>Transaction failed, please contact support!</message>
+    <mode>test</mode>
+    <timestamp>2013-05-22T13:21:54Z</timestamp>
+    <descriptor>sankyu.com/bogus +49123456789</descriptor>
+    <amount>5000</amount>
+    <currency>USD</currency>
+  </payment_response>
+</payment_responses>

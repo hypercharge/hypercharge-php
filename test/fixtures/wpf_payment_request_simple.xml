@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment>
+  <type>WpfPayment</type>
+  <transaction_id>wev238f328nc</transaction_id>
+  <usage>Order ID 500, Shoes</usage>
+  <description>You are about to buy 3 shoes at www.shoes.com!</description>
+  <editable_by_user>true</editable_by_user>
+  <notification_url>https://example.com/notification</notification_url>
+  <return_success_url>https://example.com/return_success</return_success_url>
+  <return_failure_url>https://example.com/return_failure</return_failure_url>
+  <return_cancel_url>https://example.com/return_cancel</return_cancel_url>
+  <amount>5000</amount>
+  <currency>EUR</currency>
+  <customer_email>john.doe@example.com</customer_email>
+  <customer_phone>+11234567890</customer_phone>
+  <billing_address>
+    <first_name>Hans</first_name>
+    <last_name>Johanson</last_name>
+    <address1>Kurfürstendamm 123</address1>
+    <city>Berlin</city>
+    <zip_code>10624</zip_code>
+    <country>DE</country>
+  </billing_address>
+</payment>

@@ -1,0 +1,348 @@
+<?php
+namespace Hypercharge;
+require_once dirname(__DIR__).'/test_helper.php';
+use \Mockery as m;
+
+if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
+
+class PaymentIntegrationTest extends HyperchargeTestCase {
+
+	function setUp() {
+		$this->credentials('sandbox'); //'development'; 'sandbox2';
+		// echo "\n";
+		// print_r($this->credentials);
+		Config::setIdSeparator('---');
+
+		$this->expected_payment_methods = array(
+			"credit_card"
+			,"direct_debit"
+			,"direct_pay24_sale"
+			,"giro_pay_sale"
+			,"ideal_sale"
+			,"pay_in_advance"
+			,"pay_pal"
+			,"pay_safe_card_sale"
+			,"payment_on_delivery"
+			,"purchase_on_account"
+		);
+		sort($this->expected_payment_methods);
+	}
+
+	function tearDown() {
+		m::close();
+		Config::setFactory(new Factory);
+	}
+
+
+	function testWrongPwd() {
+		$this->expectException(new Errors\NetworkError($this->credentials->paymentHost.'/payment', 'The requested URL returned error: 401'));
+		Config::set($this->credentials->user, 'wrong password', Config::ENV_SANDBOX);
+		$data = $this->fixture('wpf_payment_request_simple.json');
+		$payment = Payment::wpf($data);
+	}
+
+	function testCrapyData() {
+		$this->expectException('Hypercharge\Errors\ValidationError');
+		$data = array('foo' => 'bar');
+		$payment = Payment::wpf($data);
+	}
+
+	// TODO test more exception reasons
+
+	function testWpfCreate() {
+		$data = $this->fixture('wpf_payment_request_simple.json');
+		$payment = Payment::wpf($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew(), 'isNew %s '. print_r($payment, true));
+		$this->assertTrue($payment->shouldRedirect());
+		$this->assertEqual('WpfPayment', $payment->type);
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$this->assertEqual('5000', $payment->amount);
+		$this->assertEqual('EUR', $payment->currency);
+		$this->assertNull($payment->error);
+		$this->assertEqual('new', $payment->status);
+		$this->assertEqual($this->credentials->paymentHost.'/pay/step1/'.$payment->unique_id, $payment->redirect_url);
+		sort($payment->payment_methods);
+		$this->assertEqual($payment->payment_methods, $this->expected_payment_methods, 'paymet_methods %s  '.print_r($payment->payment_methods, true));
+		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($o->transaction_id, 'wev238f328nc');
+		$this->assertPattern('/^[0-9a-f]{13}$/', $o->random_id);
+	}
+
+	function testMobileCreate() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew(), 'isNew %s');
+		$this->assertTrue($payment->shouldContinueInMobileApp());
+		$this->assertEqual('MobilePayment', $payment->type);
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$this->assertEqual('5000', $payment->amount);
+		$this->assertEqual('EUR', $payment->currency);
+		$this->assertNull($payment->error);
+		$this->assertEqual('new', $payment->status);
+		$this->assertEqual($this->credentials->paymentHost.'/mobile/submit/'.$payment->unique_id, $payment->redirect_url);
+		$this->assertEqual($payment->redirect_url, $payment->submit_url);
+		$this->assertEqual($this->credentials->paymentHost.'/mobile/cancel/'.$payment->unique_id, $payment->cancel_url);
+		sort($payment->payment_methods);
+		$this->assertEqual($payment->payment_methods, $this->expected_payment_methods, 'paymet_methods %s  '.print_r($payment->payment_methods, true));
+		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($o->transaction_id, 'wev238f328nc');
+		$this->assertPattern('/^[0-9a-f]{13}$/', $o->random_id);
+	}
+
+	function testWpfRemoteValidationError() {
+		$data = $this->fixture('wpf_payment_request_simple.json');
+		unset($data['billing_address']);
+		$payment = Payment::wpf($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isError(), 'isError %s');
+		$this->assertIsA($payment->error, 'Hypercharge\Errors\Error');
+		$this->assertEqual($payment->error->technical_message, "'billing_address' is missing!");
+		$this->assertEqual($payment->error->message, 'Please check input data for errors!');
+		$this->assertEqual($payment->error->status_code, '320');
+		$this->assertEqual($payment->amount, '5000');
+		$this->assertEqual($payment->currency, 'EUR');
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$this->assertEqual($payment->type, 'WpfPayment');
+		$this->assertEqual($payment->status, 'error');
+		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($o->transaction_id, 'wev238f328nc');
+		$this->assertPattern('/^[0-9a-f]{13}$/', $o->random_id);
+	}
+
+	function testMobileRemoteValidationError() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		unset($data['billing_address']);
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isError(), 'isError %s');
+		$this->assertIsA($payment->error, 'Hypercharge\Errors\Error');
+		$this->assertEqual($payment->error->technical_message, "'billing_address' is missing!");
+		$this->assertEqual($payment->error->message, 'Please check input data for errors!');
+		$this->assertEqual($payment->error->status_code, '320');
+		$this->assertEqual($payment->amount, '5000');
+		$this->assertEqual($payment->currency, 'EUR');
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$this->assertEqual($payment->type, 'MobilePayment');
+		$this->assertEqual($payment->status, 'error');
+		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($o->transaction_id, 'wev238f328nc');
+		$this->assertPattern('/^[0-9a-f]{13}$/', $o->random_id);
+	}
+
+	function testWpfCancel() {
+		$data = $this->fixture('wpf_payment_request_simple.json');
+		$payment = Payment::wpf($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$response = Payment::cancel($payment->unique_id);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertTrue($response->isCanceled());
+		$this->assertEqual($response->unique_id, $payment->unique_id);
+		$this->assertNull($response->error);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($response->transaction_id, $data['transaction_id'].'---'.$o->random_id);
+		$this->assertEqual($response->amount  , $data['amount']);
+		$this->assertEqual($response->currency, $data['currency']);
+		$this->assertFalse(empty($response->timestamp));
+	}
+
+	function testMobileCancel() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$response = Payment::cancel($payment->unique_id);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertTrue($response->isCanceled());
+		$this->assertEqual($response->unique_id, $payment->unique_id);
+		$this->assertNull($response->error);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($response->transaction_id, $data['transaction_id'].'---'.$o->random_id);
+		$this->assertEqual($response->amount  , $data['amount']);
+		$this->assertEqual($response->currency, $data['currency']);
+		$this->assertFalse(empty($response->timestamp));
+	}
+
+	function testCancelWithWrongId() {
+		$response = Payment::cancel('2dba69127788f34b5fde7e09128b74ed'); // hex 32
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertTrue($response->isError());
+		$this->assertNull($response->unique_id);
+		$this->assertNull(@$response->amount);
+		$this->assertNull(@$response->currency);
+		$error = $response->error;
+		$this->assertIsA($error, 'Hypercharge\Errors\WorkflowError');
+		$this->assertEqual($error->status_code, 400);
+		$this->assertEqual($error->technical_message, 'payment not found.');
+		$this->assertEqual($error->message, 'Something went wrong, please contact support!');
+	}
+
+	function testMobileFind() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$response = Payment::find($payment->unique_id);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertTrue($response->isNew());
+		$this->assertEqual($response->unique_id, $payment->unique_id);
+		$this->assertNull($response->error);
+		$o = Helper::extractRandomId($payment->transaction_id);
+		$this->assertEqual($response->transaction_id, $data['transaction_id'].'---'.$o->random_id);
+		$this->assertEqual($response->amount  , $data['amount']);
+		$this->assertEqual($response->currency, $data['currency']);
+		$this->assertFalse(empty($response->submit_url));
+		$this->assertFalse(empty($response->cancel_url));
+		$this->assertFalse(empty($response->timestamp));
+		sort($response->payment_methods);
+		$this->assertEqual($response->payment_methods, $this->expected_payment_methods, 'payment_methods %s');
+	}
+
+	function testMobileSubmit() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		// create MobilePayment
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+
+		// fake mobile client submit
+		$wpf = new XmlWebservice();
+		$submitResponse = $wpf->call(new MobileSubmitUrl($payment->submit_url), new MobileSubmitRequest());
+		$this->assertIsA($submitResponse, 'Hypercharge\Payment');
+		$this->assertEqual($submitResponse->type, 'MobilePayment');
+		$this->assertEqual($submitResponse->status, 'approved', 'status %s , error:'.$submitResponse->error);
+		$this->assertTrue($submitResponse->isApproved());
+		$this->assertEqual($submitResponse->unique_id, $payment->unique_id);
+		$this->assertEqual($submitResponse->transaction_id, $payment->transaction_id);
+		//$this->assertEqual($submitResponse->mode, 'test');
+		$this->assertEqual($submitResponse->amount  , $data['amount']);
+		$this->assertEqual($submitResponse->currency, $data['currency']);
+		return $payment;
+	}
+
+	// TODO still failing because of issue in wpf #1603
+	function testMobileVoid() {
+
+		$this->fail('TODO still failing because of issue in wpf #1603'); return;
+
+		$payment = $this->testMobileSubmit();
+
+		// voiding MobilePayment for now returns Transaction (!!!!)
+		// TODO maik is requested to change api to return Payment
+		$response = Payment::void($payment->unique_id);
+		//print_r($response);
+		$this->assertNull($response->error, "error %s . error:\n".$response->error);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertEqual($response->type, 'MobilePayment');
+		$this->assertEqual($response->status, 'voided', 'status %s');
+		$this->assertTrue($response->isVoided(), 'isVoided() %s');
+		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->transaction_id, $payment->transaction_id);
+		$this->assertFalse(empty($response->timestamp));
+		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+	}
+
+	// TODO still failing because of issue in wpf #1603
+	function testMobileCapture() {
+
+		$this->fail('TODO still failing because of issue in wpf #1603'); return;
+
+		$payment = $this->testMobileSubmit();
+
+		// capturing MobilePayment for now returns Transaction (!!!!)
+		// TODO maik is requested to change api to return Payment
+		$response = Payment::capture($payment->unique_id);
+		//print_r($response);
+		$this->assertNull($response->error, "error %s . error:\n".$response->error);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertEqual($response->type, 'MobilePayment');
+		$this->assertEqual($response->status, 'captured', 'status %s');
+		$this->assertTrue($response->isCaptured(), 'isCaptured() %s');
+		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->transaction_id, $payment->transaction_id);
+		$this->assertFalse(empty($response->timestamp));
+		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+	}
+
+	// TODO still failing because of issue in wpf #1603
+	function testMobileRefund() {
+
+		$this->fail('TODO still failing because of issue in wpf #1603'); return;
+
+		$payment = $this->testMobileSubmit();
+
+		// refunding MobilePayment for now returns Transaction (!!!!)
+		// TODO maik is requested to change api to return Payment
+		$response = Payment::refund($payment->unique_id);
+		//print_r($response);
+		$this->assertNull($response->error, "error %s . error:\n".$response->error);
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertEqual($response->type, 'MobilePayment');
+		$this->assertEqual($response->status, 'refunded', 'status %s');
+		$this->assertTrue($response->isRefunded(), 'isRefunded() %s');
+		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->transaction_id, $payment->transaction_id);
+		$this->assertFalse(empty($response->timestamp));
+		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+	}
+
+}
+
+class MobileSubmitRequest implements IRequest {
+	function __construct($data = array()) {
+		$default = array(
+			'payment_method' => 'credit_card'
+			,'card_holder' => 'Pierre Partout'
+			,'card_number' => '4200000000000000'
+			,'cvv' => '667'
+			,'expiration_year' => '2020'
+			,'expiration_month' => '11'
+		);
+		$data = array_merge($default, $data);
+		Helper::assign($this, $data);
+	}
+
+	function getRootName() {
+		return 'payment';
+	}
+
+	function getType() {
+		// dummy
+		return 'mobile submit';
+	}
+
+	/**
+	* @throws Hypercharge\Errors\ValidationError
+	* @return void
+	*/
+	function validate() {
+		// do nothing
+	}
+
+	function createResponse($data) {
+		return new Payment($data['payment']);
+	}
+}
+
+class MobileSubmitUrl implements IUrl {
+	function __construct($url) {
+		$this->url = $url;
+	}
+	function get() {
+		return $this->url;
+	}
+}
+
+
+
+

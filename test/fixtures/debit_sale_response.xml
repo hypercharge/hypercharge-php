@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment_response>
+  <transaction_type>debit_sale</transaction_type>
+  <status>approved</status>
+  <unique_id>5e2cbbad71d2b13432323153c208223a</unique_id>
+  <transaction_id>119643250547501c79d8295</transaction_id>
+  <mode>test</mode>
+  <timestamp>2007-11-30T14:21:48Z</timestamp>
+  <descriptor>descriptor one</descriptor>
+  <amount>9000</amount>
+  <currency>USD</currency>
+</payment_response>

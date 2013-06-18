@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment>
+  <status>error</status>
+  <code>320</code>
+  <technical_message>No payment data supplied</technical_message>
+  <message>Please check input data for errors!</message>
+</payment>

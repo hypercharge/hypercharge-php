@@ -1,0 +1,9 @@
+{
+	 "schedule_unique_id": "bad08183a9ec545daf0f24c48361aa10"
+	,"schedule_end_date": "2013-01-21 00:00:00"
+	,"notification_type": "WpfPayment"
+	,"payment_unique_id": "26aa150ee68b1b2d6758a0e6c44fce4c"
+	,"payment_transaction_id": "the-id-provided-by-merchant-aadfasdfadf"
+	,"payment_status": "approved"
+	,"signature":"3d82fef85cb60e289d52c3854b97e832d4a2e95ad205e79d9cb4dc7439025cf0aabfd5b88e77d9260c5c4aa7434e01c5f00fc9c2487407c48efeddf6159ab526"
+}

@@ -1,0 +1,23 @@
+{
+	"type": "WpfPayment"
+	,"transaction_id": "wev238f328nc"
+	,"usage": "Order ID 500, Shoes"
+	,"description": "You are about to buy 3 shoes at www.shoes.com!"
+	,"editable_by_user": true
+	,"notification_url":"https://example.com/notification"
+	,"return_success_url": "https://example.com/return_success"
+	,"return_failure_url": "https://example.com/return_failure"
+	,"return_cancel_url": "https://example.com/return_cancel"
+	,"amount": 5000
+	,"currency": "EUR"
+	,"customer_email": "john.doe@example.com"
+	,"customer_phone": "+11234567890"
+	,"billing_address": {
+		"first_name": "Hans"
+		,"last_name": "Johanson"
+		,"address1": "Kurfürstendamm 123"
+		,"city": "Berlin"
+		,"zip_code": "10624"
+		,"country": "DE"
+	}
+}

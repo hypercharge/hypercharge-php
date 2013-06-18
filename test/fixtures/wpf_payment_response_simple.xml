@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<payment>
+  <type>WpfPayment</type>
+  <unique_id>13412341234134123412341234123412341234134</unique_id>
+  <status>new</status>
+  <transaction_id>wev238f328nc</transaction_id>
+  <technical_message>TESTMODE: No real money will be transferred!</technical_message>
+  <message>TESTMODE: No real money will be transferred!</message>
+  <mode>test</mode>
+  <timestamp>2011-04-19T15:00:11Z</timestamp>
+  <amount>5000</amount>
+  <currency>EUR</currency>
+  <redirect_url>https://testpayment.hypercharge.net/pay/step1/13412341234134123412341234123412341234134</redirect_url>
+  <payment_methods>
+    <payment_method>credit_card</payment_method>
+    <payment_method>pay_pal</payment_method>
+  </payment_methods>
+</payment>

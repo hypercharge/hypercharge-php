@@ -1,0 +1,18 @@
+{
+	"type": "MobilePayment"
+	,"transaction_id": "wev238f328nc"
+	,"usage": "Order ID 500, Shoes"
+	,"notification_url":"https://example.com/notification"
+	,"amount": 5000
+	,"currency": "EUR"
+	,"customer_email": "john.doe@example.com"
+	,"customer_phone": "+11234567890"
+	,"billing_address": {
+		"first_name": "Hans"
+		,"last_name": "Johanson"
+		,"address1": "Kurfürstendamm 123"
+		,"city": "Berlin"
+		,"zip_code": "10624"
+		,"country": "DE"
+	}
+}
