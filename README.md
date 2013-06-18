@@ -253,34 +253,3 @@ Run the unit tests
 ```sh
 php test/all_tests.php
 ```
-### Integration Tests
-
-The integration tests do real https requests to the remote Hypercharge sandbox server.
-
-First setup your `test/credentials.json` with the sandbox credentials you received from us (see `test/credentials.json.example`).
-
-```json
-{
-  "sandbox": {
-    "gatewayHost"  : "https://testgate.hypercharge.net"
-    ,"paymentHost" : "https://testpayment.hypercharge.net"
-    ,"user"        : "TODO: insert your testgate.hypercharge.net merchant login here"
-    ,"password"    : "TODO: insert your testgate.hypercharge.net merchant password here"
-    ,"channelTokens": {
-      "USD" : "TODO: insert your USD channel token here"
-      ,"EUR": "TODO: insert your EUR channel token here"
-    }
-  }
-}
-```
-Note: You might **not** want to add the credentials to your version controll system (cvs, git, ...). So add `test/credentials.json` to your `.gitignore` file for example.
-
-Run the integration tests
-```sh
-php test/remote_tests.php
-```
-
-In case you want to see what's actually transmitted to and from Hypercharge turn on `DEBUG` mode:
-```
-DEBUG=1 php test/remote_tests.php
-```
