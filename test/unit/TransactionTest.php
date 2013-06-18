@@ -123,7 +123,7 @@ class TransactionTest extends HyperchargeTestCase {
 	function testEachWithSingleResult() {
 		XmlSerializer::$sort = false;
 
-		$data = array('start_date'=>'2013-06-05', 'interval'=>'P1D');
+		$data = array('start_date'=>'2013-06-05', 'period'=>'P1D');
 		$requestXml = '<?xml version="1.0" encoding="UTF-8"?>
 <reconcile>
   <start_date>2013-06-05</start_date>
@@ -197,7 +197,7 @@ class TransactionTest extends HyperchargeTestCase {
 		XmlSerializer::$sort = false;
 		$curl = $this->curlMock(3);
 
-		$data = array('start_date'=>'2013-06-05', 'interval'=>'P1W');
+		$data = array('start_date'=>'2013-06-05', 'period'=>'P1W');
 		$requestXml = '<?xml version="1.0" encoding="UTF-8"?>
 <reconcile>
   <start_date>2013-06-05</start_date>

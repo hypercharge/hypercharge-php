@@ -231,8 +231,9 @@ class Transaction implements IResponse {
 
 	/**
 	* called "reconcile" "By date range" in API doc
+	* request.period e.g. "P1D" for one day, see php DateInterval::__construct
 	* @param string $channelToken
-	* @param mixed $request optional array or Hypercharge\ReconcileByDateRequest
+	* @param mixed $request optional array or Hypercharge\ReconcileByDateRequest  {start_date: "YYYY-MM-DD", end_date: "YYYY-MM-DD", period: String}
 	* @return Hypercharge\PaginatedCollection containing instances of Hypercharge\Transaction
 	*/
 	static function page($channelToken, $request = null) {
@@ -245,8 +246,9 @@ class Transaction implements IResponse {
 
 	/**
 	* iterates over all pages and calls callback passing Transaction as parameter
+	* request.period e.g. "P1D" for one day, see php DateInterval::__construct
 	* @param string $channelToken
-	* @param mixed $request array or Hypercharge\ReconcileByDateRequest
+	* @param mixed $request array or Hypercharge\ReconcileByDateRequest  {start_date: "YYYY-MM-DD", end_date: "YYYY-MM-DD", period: String}
 	* @param function $callback parameter (Hypercharge\Transaction $trx)
 	*/
 	static function each($channelToken, $request, $callback) {

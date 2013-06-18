@@ -4,8 +4,8 @@ namespace Hypercharge;
 class RecurringByDateRequest extends PaginatedByDateRequest {
 
 	/**
-	* @param array $p optional format {start_date:optional String, end_date:optional String, interval: optional String or DateInterval, page:optional int} @see Hypercharge\ReconcileByDateRequest
-	* @throws Exception if interval is invalid DateInterval string representation.
+	* @param array $p optional format {start_date:optional String, end_date:optional String, period: optional String or DateInterval, page:optional int} @see Hypercharge\ReconcileByDateRequest
+	* @throws Exception if period is invalid DateInterval string representation.
 	*/
 	function __construct(array $p = null) {
 		parent::__construct($p);

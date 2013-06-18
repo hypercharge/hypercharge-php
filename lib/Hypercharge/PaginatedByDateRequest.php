@@ -22,19 +22,19 @@ abstract class PaginatedByDateRequest implements IRequest {
 	/**
 	* @see Hypercharge\ReconcileByDateRequest#__construct
 	*
-	* @param array $p optional format {start_date:optional String, end_date:optional String, interval: optional String or DateInterval, page:optional int}
-	* @throws Exception if interval is invalid DateInterval string representation.
+	* @param array $p optional format {start_date:optional String, end_date:optional String, period: optional String or DateInterval, page:optional int}
+	* @throws Exception if period is invalid DateInterval string representation.
 	*/
 	function __construct(array $p = null) {
 		if($p) Helper::assign($this, $p);
 
-		// calculate end_date with start_date and interval
-		if(isset($this->interval)) {
-			$interval = $this->interval;
-			unset($this->interval);
-			if(!$interval instanceof \DateInterval) $interval = new \DateInterval($interval);
+		// calculate end_date with start_date and period
+		if(isset($this->period)) {
+			$period = $this->period;
+			unset($this->period);
+			if(!$period instanceof \DateInterval) $period = new \DateInterval($period);
 			$start = new \DateTime($this->start_date, new \DateTimeZone('UTC'));
-			$start->add($interval);
+			$start->add($period);
 			$this->end_date = $start->format('Y-m-d');
 		}
 	}

@@ -404,7 +404,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$me = $this;
 		$all = Transaction::each(
 			$this->channelToken
-			,array('start_date'=>'2013-05-24', 'interval' => 'P1D')
+			,array('start_date'=>'2013-05-24', 'period' => 'P1D')
 			,function($trx) use ($me, &$n, &$uids) {
 				$n++;
 				$me->assertIsA($trx, 'Hypercharge\Transaction');
@@ -419,11 +419,11 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($n, 247);
 	}
 
-	function testEachAll() {
+	function testEachForFourDays() {
 		$uids = array();
 		$n = 0;
 		$me = $this;
-		$request = array('start_date'=>'2013-05-31', 'interval'=>'P4D');
+		$request = array('start_date'=>'2013-05-20', 'period'=>'P1W');
 
 		$testPage = Transaction::page($this->channelToken, $request);
 

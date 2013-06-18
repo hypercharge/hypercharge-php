@@ -101,7 +101,7 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
 	}
 
 	function testStartDateWithInterval1Day() {
-		$r = new ReconcileByDateRequest(array('start_date' => '2013-04-01', 'interval'=>'P1D'));
+		$r = new ReconcileByDateRequest(array('start_date' => '2013-04-01', 'period'=>'P1D'));
 		$this->assertEqual('2013-04-01', $r->start_date);
 		$this->assertEqual('2013-04-02', $r->end_date);
 		$this->assertEqual(1, $r->page);
@@ -113,11 +113,11 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
   <end_date>2013-04-02</end_date>
   <page>1</page>
 </reconcile>
-', 'interval should not be in request');
+', 'period should not be in request');
 	}
 
 	function testStartDateWithInterval1Week() {
-		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-31', 'interval'=>'P1W'));
+		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-31', 'period'=>'P1W'));
 		$this->assertEqual('2013-05-31', $r->start_date);
 		$this->assertEqual('2013-06-07', $r->end_date);
 		$this->assertEqual(1, $r->page);
@@ -125,7 +125,7 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
 	}
 
 	function testStartDateWithIntervalInstance1Month() {
-		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-31', 'interval'=>new \DateInterval('P1M')));
+		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-31', 'period'=>new \DateInterval('P1M')));
 		$this->assertEqual('2013-05-31', $r->start_date);
 		$this->assertEqual('2013-07-01', $r->end_date);
 		$this->assertEqual(1, $r->page);
@@ -133,7 +133,7 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
 	}
 
 		function testStartDateWithDateRangeOverwritesEndDate() {
-		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-01', 'end_date' => '2013-06-01', 'interval'=>'P1M1D'));
+		$r = new ReconcileByDateRequest(array('start_date' => '2013-05-01', 'end_date' => '2013-06-01', 'period'=>'P1M1D'));
 		$this->assertEqual('2013-05-01', $r->start_date);
 		$this->assertEqual('2013-06-02', $r->end_date);
 		$this->assertEqual(1, $r->page);
@@ -142,7 +142,7 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
 
 	function testInvalidDateRangeThrowsException() {
 		$this->expectException('Exception');
-		new ReconcileByDateRequest(array('start_date' => '2013-05-01', 'interval'=>'invalid'));
+		new ReconcileByDateRequest(array('start_date' => '2013-05-01', 'period'=>'invalid'));
 	}
 
 	function testCreateResponseWithEmptyResult() {
