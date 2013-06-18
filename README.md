@@ -35,14 +35,22 @@ For development and testing. No real money is transfered.
 
 ```php
 require_once dirname(__DIR__).'/vendor/autoload.php';
-Hypercharge\Config::set('YOUR-MERCHANT-TEST-LOGIN', 'YOUR-MERCHANT-TEST-PASSWORD', Hypercharge\Config::ENV_SANDBOX);
+Hypercharge\Config::set(
+   'YOUR-MERCHANT-TEST-LOGIN'
+  ,'YOUR-MERCHANT-TEST-PASSWORD'
+  ,Hypercharge\Config::ENV_SANDBOX
+);
 ```
 
 ### Live
 
 ```php
 require_once dirname(__DIR__).'/vendor/autoload.php';
-Hypercharge\Config::set('YOUR-MERCHANT-LOGIN', 'YOUR-MERCHANT-PASSWORD', Hypercharge\Config::ENV_LIVE);
+Hypercharge\Config::set(
+   'YOUR-MERCHANT-LOGIN'
+  ,'YOUR-MERCHANT-PASSWORD'
+  ,Hypercharge\Config::ENV_LIVE
+);
 ```
 `vendor/autoload.php` has been created by [composer](http://getcomposer.org/).
 
@@ -77,10 +85,10 @@ if($sale->isSuccess()) {
 
 The following example is more complex.
 
-1.) create a WPF session.
-2.) redirect customer browser to WPF url provided
-3.) customer submits WPF and is redirected to return_success_url you provided.
-    In the mean time hypercharge notifies your backend of the calling notification_url, providing the payment status.
+- create a WPF session.
+- redirect customer browser to WPF url provided
+- customer submits WPF and is redirected to return_success_url you provided.
+    In the mean time hypercharge notifies your backend by calling `notification_url`, providing the payment status.
 
 ```php
 try {
@@ -156,12 +164,16 @@ if($notification->isVerified()) {
     // Notice: to be 100% reacecondition proof update status to 'payment_approved' has to be done atomically
     $updatedRows = update_order(array(
       'set'   => array('status'=> 'payment_approved')
-      'where' => array('status'=> 'waiting_for_payment_approval', 'hypercharge_unique_id' => $notification->payment_unique_id)
+      'where' => array('status'=> 'waiting_for_payment_approval'
+                      ,'hypercharge_unique_id' => $notification->payment_unique_id
+      )
     ));
 
     if($updatedRows == 1) {
       // ok, start shipping
-      $order = find_order_where(array('status' => 'payment_approved', 'hypercharge_unique_id' => $notification->payment_unique_id));
+      $order = find_order_where(array('status' => 'payment_approved'
+                                      ,'hypercharge_unique_id' => $notification->payment_unique_id
+      ));
       $order->ship_goods_to_customer();
 
     } else {
