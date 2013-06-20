@@ -24,7 +24,7 @@ class Payment implements IResponse {
 	public $unique_id;
 	public $type;
 	public $error = null;
-	public $transations = null;
+	public $transactions = null;
 
 	function __construct($p) {
 		Helper::assign($this, $p);
@@ -40,13 +40,13 @@ class Payment implements IResponse {
 		unset($this->technical_message);
 
 		if(isset($p['payment_transaction'])) {
-			$this->transations = array();
+			$this->transactions = array();
 			if(array_key_exists(0, $p['payment_transaction'])) {
 				foreach($p['payment_transaction'] as $data) {
-					$this->transations[] = new Transaction($data);
+					$this->transactions[] = new Transaction($data);
 				}
 			} else {
-				$this->transations[] = new Transaction($p['payment_transaction']);
+				$this->transactions[] = new Transaction($p['payment_transaction']);
 			}
 		}
 	}

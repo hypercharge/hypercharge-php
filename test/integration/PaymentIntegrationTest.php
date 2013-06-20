@@ -230,83 +230,124 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		return $payment;
 	}
 
-	// TODO still failing because of issue in wpf #1603
-	function testMobileVoid() {
 
-		$this->fail('TODO still failing because of issue in wpf #1603'); return;
+	function testMobileSubmitAuthorize() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		$data['transaction_types'][] = 'authorize';
+		// create MobilePayment for authorize
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$this->assertEqual($payment->payment_methods, array('credit_card'));
+
+		// fake mobile client submit
+		$wpf = new XmlWebservice();
+		$submitResponse = $wpf->call(new MobileSubmitUrl($payment->submit_url), new MobileSubmitRequest());
+		$this->assertIsA($submitResponse, 'Hypercharge\Payment');
+		$this->assertEqual($submitResponse->type, 'MobilePayment');
+		$this->assertEqual($submitResponse->status, 'approved', 'status %s , error:'.$submitResponse->error);
+		$this->assertTrue($submitResponse->isApproved());
+		$this->assertEqual($submitResponse->unique_id, $payment->unique_id);
+		$this->assertEqual($submitResponse->transaction_id, $payment->transaction_id);
+		//$this->assertEqual($submitResponse->mode, 'test');
+		$this->assertEqual($submitResponse->amount  , $data['amount']);
+		$this->assertEqual($submitResponse->currency, $data['currency']);
+
+		return $payment;
+	}
+
+	function testMobileVoid() {
 
 		$payment = $this->testMobileSubmit();
 
-		// voiding MobilePayment for now returns Transaction (!!!!)
-		// TODO maik is requested to change api to return Payment
 		$response = Payment::void($payment->unique_id);
-		//print_r($response);
 		$this->assertNull($response->error, "error %s . error:\n".$response->error);
 		$this->assertIsA($response, 'Hypercharge\Payment');
 		$this->assertEqual($response->type, 'MobilePayment');
 		$this->assertEqual($response->status, 'voided', 'status %s');
 		$this->assertTrue($response->isVoided(), 'isVoided() %s');
-		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
 		$this->assertEqual($response->transaction_id, $payment->transaction_id);
 		$this->assertFalse(empty($response->timestamp));
 		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+
+		$this->assertIsA($response->transactions, 'array');
+		$this->assertIsA($response->transactions[0], 'Hypercharge\Transaction');
+		$trx = $response->transactions[0];
+		$this->assertEqual($trx->getType(), 'sale');
+		$this->assertTrue($trx->isVoided());
+		$this->assertEqual($trx->amount        , $payment->amount);
+		$this->assertEqual($trx->currency      , $payment->currency);
+		$this->assertEqual($trx->transaction_id, $payment->transaction_id);
 	}
 
-	// TODO still failing because of issue in wpf #1603
+
 	function testMobileCapture() {
 
-		$this->fail('TODO still failing because of issue in wpf #1603'); return;
+		$payment = $this->testMobileSubmitAuthorize();
 
-		$payment = $this->testMobileSubmit();
-
-		// capturing MobilePayment for now returns Transaction (!!!!)
-		// TODO maik is requested to change api to return Payment
 		$response = Payment::capture($payment->unique_id);
-		//print_r($response);
 		$this->assertNull($response->error, "error %s . error:\n".$response->error);
 		$this->assertIsA($response, 'Hypercharge\Payment');
 		$this->assertEqual($response->type, 'MobilePayment');
 		$this->assertEqual($response->status, 'captured', 'status %s');
 		$this->assertTrue($response->isCaptured(), 'isCaptured() %s');
-		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
 		$this->assertEqual($response->transaction_id, $payment->transaction_id);
 		$this->assertFalse(empty($response->timestamp));
 		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+
+		$this->assertIsA($response->transactions, 'array');
+		$this->assertIsA($response->transactions[0], 'Hypercharge\Transaction');
+		$trx = $response->transactions[0];
+		$this->assertEqual($trx->getType(), 'authorize');
+		$this->assertTrue($trx->isCaptured());
+		$this->assertEqual($trx->amount        , $payment->amount);
+		$this->assertEqual($trx->currency      , $payment->currency);
+		$this->assertEqual($trx->transaction_id, $payment->transaction_id);
 	}
 
-	// TODO still failing because of issue in wpf #1603
 	function testMobileRefund() {
-
-		$this->fail('TODO still failing because of issue in wpf #1603'); return;
 
 		$payment = $this->testMobileSubmit();
 
-		// refunding MobilePayment for now returns Transaction (!!!!)
-		// TODO maik is requested to change api to return Payment
 		$response = Payment::refund($payment->unique_id);
-		//print_r($response);
 		$this->assertNull($response->error, "error %s . error:\n".$response->error);
 		$this->assertIsA($response, 'Hypercharge\Payment');
 		$this->assertEqual($response->type, 'MobilePayment');
 		$this->assertEqual($response->status, 'refunded', 'status %s');
 		$this->assertTrue($response->isRefunded(), 'isRefunded() %s');
-		$this->assertNotEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
+		$this->assertEqual($response->unique_id, $payment->unique_id, 'unique_id %s');
 		$this->assertEqual($response->transaction_id, $payment->transaction_id);
 		$this->assertFalse(empty($response->timestamp));
 		//$this->assertEqual($response->descriptor, 'sankyu.com/bogus +49123456789');
+
+		$this->assertIsA($response->transactions, 'array');
+		$this->assertIsA($response->transactions[0], 'Hypercharge\Transaction');
+		$trx = $response->transactions[0];
+		$this->assertEqual($trx->getType(), 'sale');
+		$this->assertTrue($trx->isRefunded());
+		$this->assertEqual($trx->amount        , $payment->amount);
+		$this->assertEqual($trx->currency      , $payment->currency);
+		$this->assertEqual($trx->transaction_id, $payment->transaction_id);
 	}
 
 }
 
 class MobileSubmitRequest implements IRequest {
+
 	function __construct($data = array()) {
+		$future = new \DateTime('now', new \DateTimeZone('UTC'));
+		$future->add(new \DateInterval('P1Y'));
+
 		$default = array(
 			'payment_method' => 'credit_card'
 			,'card_holder' => 'Pierre Partout'
 			,'card_number' => '4200000000000000'
 			,'cvv' => '667'
-			,'expiration_year' => '2020'
-			,'expiration_month' => '11'
+			,'expiration_year'  => $future->format('Y')
+			,'expiration_month' => $future->format('m')
 		);
 		$data = array_merge($default, $data);
 		Helper::assign($this, $data);

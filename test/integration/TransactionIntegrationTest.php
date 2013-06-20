@@ -201,7 +201,6 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 
 	function testAutorize3dAsync() {
 	 	$data = $this->fixture('authorize3d_async.json');
-	 	//print_r($data);
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
 	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
@@ -217,7 +216,6 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	// TODO created trx should be sync but is async! #1605
 	function testAutorize3dSync() {
 	 	$data = $this->fixture('authorize3d_sync.json');
-	 	//print_r($data);
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
 	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);

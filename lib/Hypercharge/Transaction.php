@@ -47,6 +47,12 @@ class Transaction implements IResponse {
 	function isApproved() {
 		return $this->status == self::STATUS_APPROVED;
 	}
+	function isDeclined() {
+		return $this->status == self::STATUS_DECLINED;
+	}
+	function isPending() {
+		return $this->status == self::STATUS_PENDING;
+	}
 	function isPendingAsync() {
 		return $this->status == self::STATUS_PENDING_ASYNC;
 	}
@@ -56,6 +62,25 @@ class Transaction implements IResponse {
 	function isVoided() {
 		return $this->status == self::STATUS_VOIDED;
 	}
+	function isChargebacked() {
+		return $this->status == self::STATUS_CHARGEBACKED;
+	}
+	function isRefunded() {
+		return $this->status == self::STATUS_REFUNDED;
+	}
+	function isChargebackReversed() {
+		return $this->status == self::STATUS_CHARGEBACK_REVERSED;
+	}
+	function isPreArbitrated() {
+		return $this->status == self::STATUS_PRE_ARBITRATED;
+	}
+	function isRejected() {
+		return $this->status == self::STATUS_REJECTED;
+	}
+	function isCaptured() {
+		return $this->status == self::STATUS_CAPTURED;
+	}
+
 
 	function isPersistentInHypercharge() {
 		return !empty($this->unique_id)

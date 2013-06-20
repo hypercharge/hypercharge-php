@@ -88,10 +88,23 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertEqual($error->status_code, 320);
 		$this->assertEqual($error->message, 'Please check input data for errors!');
 		$this->assertEqual($error->technical_message, 'No payment data supplied');
-
 	}
 
 	function testConstructWithErrorInResponse() {
 		// TODO
 	}
+
+	function testConstructWithVoidResponse() {
+		$response = $this->parseXml($this->schemaResponse('WpfPayment_voided.xml'));
+		$p = new Payment($response['payment']);
+		$this->assertIsA($p, 'Hypercharge\Payment');
+		$this->assertIsA($p->transactions, 'array');
+		$this->assertEqual(count($p->transactions), 1);
+		$this->assertIsA($p->transactions[0], 'Hypercharge\Transaction');
+		$trx = $p->transactions[0];
+		$this->assertEqual($trx->transaction_id, $p->transaction_id);
+		$this->assertIsA($trx->billing_address, 'Hypercharge\Address');
+	}
+
 }
+
