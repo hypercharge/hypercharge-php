@@ -185,7 +185,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($trx->transaction_type, 'void');
 	}
 
-	// TODO does not work on testgate! because of bogus gateway not implemented
+	// TODO maik! does not work on testgate! because of bogus gateway not implemented
 	function testReferencedFundTransfer() {
 		$sale = $this->testSale();
 		$data = $this->fixture('referenced_fund_transfer.json');
@@ -213,7 +213,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	 	return $trx;
 	}
 
-	// TODO created trx should be sync but is async! #1605
+	// TODO maik! created trx should be sync but is async! #1605
 	function testAutorize3dSync() {
 	 	$data = $this->fixture('authorize3d_sync.json');
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
