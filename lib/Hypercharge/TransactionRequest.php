@@ -35,6 +35,7 @@ class TransactionRequest implements IRequest {
       ,'init_recurring_debit_authorize'
       ,'recurring_debit_sale'
       ,'barzahlen_sale'
+      ,'giro_pay_sale'
     );
 		if(!in_array(@$data['transaction_type'], $allowedTypes)) {
 			throw Errors\ValidationError::create('transaction_type', 'value invalid: "'.@$data['transaction_type'].'"');

@@ -2,9 +2,10 @@
 
 PHP SDK for the hypercharge payment gateway.
 
-Version 1.24.0
+Version 1.24.2
+add Hypercharge\Transaction::giro_pay_sale()
 
-June 18, 2013
+July 4, 2013
 
 tested with PHP 5.3.25
 
