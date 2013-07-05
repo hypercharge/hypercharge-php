@@ -2,6 +2,12 @@
 namespace Hypercharge;
 
 class PaymentRequest implements IRequest {
+
+	private static $allowedTypes = array(
+			 'WpfPayment'
+			,'MobilePayment'
+	);
+
 	/**
 	* $data hash of format:
 	* {
@@ -14,12 +20,9 @@ class PaymentRequest implements IRequest {
 	* @param array $data
 	*/
 	function __construct($data) {
-		$allowedTypes = array(
-			 'WpfPayment'
-      ,'MobilePayment'
-    );
-		if(!in_array(@$data['type'], $allowedTypes)) {
-			throw Errors\ValidationError::create('type', 'must be one of "'.join($allowedTypes, '", "').'" but is: "'.@$data['type'].'"');
+
+		if(!in_array(@$data['type'], self::$allowedTypes)) {
+			throw Errors\ValidationError::create('type', 'must be one of "'.join(self::$allowedTypes, '", "').'" but is: "'.@$data['type'].'"');
 		}
 		Helper::assign($this, $data);
 
@@ -47,6 +50,13 @@ class PaymentRequest implements IRequest {
 
 	function getType() {
 		return $this->type;
+	}
+
+	/**
+	* @return array of strings
+	*/
+	static function getAllowedTypes() {
+		return self::$allowedTypes;
 	}
 
 	function validate() {

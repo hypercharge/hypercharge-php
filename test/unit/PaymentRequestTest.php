@@ -5,7 +5,7 @@ require_once dirname(__DIR__).'/test_helper.php';
 
 class PaymentRequestTest extends HyperchargeTestCase {
 
-	function testConstructorShouldThrowExceptionForType() {
+	function testConstructorShouldThrowExceptionWithEmptyType() {
 		try {
 			$p = new PaymentRequest(array());
 			$this->fail('should throw exception');
@@ -14,6 +14,20 @@ class PaymentRequestTest extends HyperchargeTestCase {
 			$this->assertEqual($exe->technical_message, '1 affected property: type');
 			$this->assertEqual($exe->errors[0]['property'], 'type');
 			$this->assertEqual($exe->errors[0]['message'], 'must be one of "WpfPayment", "MobilePayment" but is: ""');
+			return;
+		}
+		$this->fail('should throw ValidationError');
+	}
+
+	function testConstructorShouldThrowExceptionWithWrongType() {
+		try {
+			$p = new PaymentRequest(array('type' => 'Wrong'));
+			$this->fail('should throw exception');
+		} catch(Errors\ValidationError $exe) {
+			$this->assertEqual($exe->message, '1 validation error');
+			$this->assertEqual($exe->technical_message, '1 affected property: type');
+			$this->assertEqual($exe->errors[0]['property'], 'type');
+			$this->assertEqual($exe->errors[0]['message'], 'must be one of "WpfPayment", "MobilePayment" but is: "Wrong"');
 			return;
 		}
 		$this->fail('should throw ValidationError');
@@ -74,6 +88,17 @@ class PaymentRequestTest extends HyperchargeTestCase {
 			return;
 		}
 		$this->fail('should throw Error');
+	}
+
+	function testAllowedTypesShouldAllHaveSchema() {
+		$missingSchemas = array();
+		foreach(PaymentRequest::getAllowedTypes() as $type) {
+			$file = JsonSchemaValidator::schemaPathFor($type);
+			if(!file_exists($file)) {
+				$missingSchemas[] = $type;
+			}
+		}
+		$this->assertEqual(0, sizeof($missingSchemas), "missing schemas for Payment types: ".join($missingSchemas, ', '));
 	}
 
 	function parseResponseFixture($xmlFile) {

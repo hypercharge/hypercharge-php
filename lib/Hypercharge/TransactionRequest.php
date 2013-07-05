@@ -3,8 +3,7 @@ namespace Hypercharge;
 
 class TransactionRequest implements IRequest {
 
-	function __construct($data) {
-		$allowedTypes = array(
+	private static $allowedTypes = array(
 			 'sale'
       ,'sale3d'
       ,'authorize'
@@ -12,32 +11,29 @@ class TransactionRequest implements IRequest {
       ,'capture'
       ,'refund'
       ,'void'
-      ,'chargeback'
-      ,'chargeback_reversal'
-      ,'pre_arbitration'
       ,'init_recurring_sale'
       ,'recurring_sale'
       ,'ideal_sale'
       ,'referenced_fund_transfer'
       ,'debit_sale'
-      ,'sepa_debit'
+      //,'sepa_debit'
       ,'direct_pay24_sale'
-      ,'giropay_sale'
-      ,'paysafe_card_sale'
+      ,'giro_pay_sale'
+      //,'paysafe_card_sale'
       ,'init_recurring_authorize'
-      ,'debit_chargeback'
+      //,'debit_chargeback'
       ,'purchase_on_account'
       ,'pay_in_advance'
-      ,'deposit'
       ,'payment_on_delivery'
       ,'pay_pal'
       ,'init_recurring_debit_sale'
       ,'init_recurring_debit_authorize'
       ,'recurring_debit_sale'
-      ,'barzahlen_sale'
-      ,'giro_pay_sale'
+      //,'barzahlen_sale'
     );
-		if(!in_array(@$data['transaction_type'], $allowedTypes)) {
+
+	function __construct($data) {
+		if(!in_array(@$data['transaction_type'], self::$allowedTypes)) {
 			throw Errors\ValidationError::create('transaction_type', 'value invalid: "'.@$data['transaction_type'].'"');
 		}
 
@@ -85,6 +81,13 @@ class TransactionRequest implements IRequest {
 
 	function getType() {
 		return $this->transaction_type;
+	}
+
+	/**
+	* @return array of strings
+	*/
+	static function getAllowedTypes() {
+		return self::$allowedTypes;
 	}
 
 	function validate() {

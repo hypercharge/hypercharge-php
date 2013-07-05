@@ -185,19 +185,20 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($trx->transaction_type, 'void');
 	}
 
-	// TODO maik! does not work on testgate! because of bogus gateway not implemented
 	function testReferencedFundTransfer() {
 		$sale = $this->testSale();
 		$data = $this->fixture('referenced_fund_transfer.json');
 		$data['reference_id'] = $sale->unique_id;
 		$trx = Transaction::referenced_fund_transfer($this->channelToken, $data);
+		if($trx->error) {
+			$this->fail('TODO maik! does not work on testgate! #1604 and #1632');
+			return;
+		}
 		$this->assertNull($trx->error, "error %s , error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'referenced_fund_transfer');
-		echo "\n", $trx, "\n";
 	}
-
 
 	function testAutorize3dAsync() {
 	 	$data = $this->fixture('authorize3d_async.json');
@@ -213,13 +214,16 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	 	return $trx;
 	}
 
-	// TODO maik! created trx should be sync but is async! #1605
 	function testAutorize3dSync() {
 	 	$data = $this->fixture('authorize3d_sync.json');
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
 	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
-	 	$this->assertTrue($trx->isApproved(), 'isApproved() %s');// fails here see #1605
+		if($trx->isPendingAsync()) {
+			$this->fail('TODO maik! created trx should be sync but is async! #1605');
+			return;
+		}
+	 	$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 	 	$this->assertEqual($trx->transaction_type, 'authorize3d');
 	 	$this->assertEqual($trx->amount  , $data['amount']);
 	 	$this->assertEqual($trx->currency, $data['currency']);
@@ -247,7 +251,11 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	 	$trx = Transaction::sale3d($this->channelToken, $data);
 	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
-	 	$this->assertTrue($trx->isApproved(), 'isApproved() %s');// fails here see #1606
+	 	if($trx->isPendingAsync()) {
+	 		$this->fail('TODO maik! created trx should be sync but is async! #1606 and #1648 ');
+	 		return;
+	 	}
+	 	$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 	 	$this->assertEqual($trx->transaction_type, 'sale3d');
 	 	$this->assertEqual($trx->amount  , $data['amount']);
 	 	$this->assertEqual($trx->currency, $data['currency']);
@@ -330,8 +338,8 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($trx->transaction_type, 'debit_sale');
 		$this->assertEqual($trx->amount  , $data['amount']);
 		$this->assertEqual($trx->currency, $data['currency']);
-	 	$this->assertPattern('/\/redirect\/to_acquirer\//', $trx->redirect_url);
-	 	$this->assertTrue($trx->shouldRedirect());
+	 	$this->assertNull(@$trx->redirect_url);
+	 	$this->assertFalse($trx->shouldRedirect());
 	}
 
 	function testInitRecurringDebitSale() {
@@ -344,8 +352,8 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($trx->transaction_type, 'init_recurring_debit_sale');
 		$this->assertEqual($trx->amount  , $data['amount']);
 		$this->assertEqual($trx->currency, $data['currency']);
-	 	$this->assertPattern('/\/redirect\/to_acquirer\//', $trx->redirect_url);
-	 	$this->assertTrue($trx->shouldRedirect());
+	 	$this->assertNull(@$trx->redirect_url);
+	 	$this->assertFalse($trx->shouldRedirect());
 	}
 
 	function testGiroPaySale() {
@@ -356,6 +364,20 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 		$this->assertEqual($trx->transaction_type, 'giro_pay_sale');
+		$this->assertEqual($trx->amount  , $data['amount']);
+		$this->assertEqual($trx->currency, $data['currency']);
+	 	$this->assertPattern('/\/redirect\/to_acquirer\//', $trx->redirect_url);
+	 	$this->assertTrue($trx->shouldRedirect());
+	}
+
+	function testDirectPay24Sale() {
+		$data = $this->fixture('direct_pay24_sale.json');
+		$data['currency'] = 'EUR';
+		$trx = Transaction::direct_pay24_sale($this->credentials->channelTokens->EUR, $data);
+		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+		$this->assertEqual($trx->transaction_type, 'direct_pay24_sale');
 		$this->assertEqual($trx->amount  , $data['amount']);
 		$this->assertEqual($trx->currency, $data['currency']);
 	 	$this->assertPattern('/\/redirect\/to_acquirer\//', $trx->redirect_url);

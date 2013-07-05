@@ -250,6 +250,15 @@ class Transaction implements IResponse {
 	}
 
 	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function direct_pay24_sale($channelToken, $request) {
+		return self::_call('direct_pay24_sale', $request, $channelToken);
+	}
+
+	/**
 	* called "Reconcile" "Single Transaction" in API doc
 	* @param string $channelToken
 	* @param string $unique_id hex Transaction unique_id

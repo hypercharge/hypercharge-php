@@ -44,6 +44,9 @@ class TransactionTest extends HyperchargeTestCase {
 	}
 
 	function testShouldRedirectWithUidAndPendingAsync() {
+
+		$this->fail('TODO define redirect conditions  #1649 ');
+
 		$r = $this->response('debit_sale.xml');
 		$r['status'] = Transaction::STATUS_PENDING_ASYNC;
 		$t = new Transaction($r);
