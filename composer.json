@@ -10,7 +10,7 @@
 		"ext-hash": "*",
 		"ext-simplexml": "*",
 		"ext-dom": "*",
-		"hypercharge/hypercharge-schema": "@dev"
+		"hypercharge/hypercharge-schema": "*"
 	},
 	"require-dev": {
 		"vierbergenlars/simpletest": "*",

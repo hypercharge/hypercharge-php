@@ -18,6 +18,7 @@ class Transaction implements IResponse {
 	public $unique_id;
 	public $transaction_type;
 	public $error = null;
+	public $redirect_url = null;
 
 	function __construct($p) {
 		Helper::assign($this, $p);
@@ -40,7 +41,7 @@ class Transaction implements IResponse {
 	* @return boolean true if transaction successfully created and it's an async transaction (e.g. 'sale3d')
 	*/
 	function shouldRedirect() {
-		return $this->isPersistentInHypercharge() && $this->isPendingAsync();
+		return $this->isPersistentInHypercharge() && !empty($this->redirect_url);
 	}
 
 	// stati

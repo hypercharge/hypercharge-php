@@ -28,6 +28,18 @@ class TransactionTest extends HyperchargeTestCase {
 		$this->assertEqual($t->status, Transaction::STATUS_APPROVED);
 		$this->assertTrue($t->isApproved());
 
+		$r['status'] = Transaction::STATUS_DECLINED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isDeclined());
+
+		$r['status'] = Transaction::STATUS_PENDING;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isPending());
+
+		$r['status'] = Transaction::STATUS_PENDING_ASYNC;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isPendingAsync());
+
 		$r['status'] = Transaction::STATUS_ERROR;
 		$t = new Transaction($r);
 		$this->assertTrue($t->isError());
@@ -36,46 +48,142 @@ class TransactionTest extends HyperchargeTestCase {
 		$t = new Transaction($r);
 		$this->assertTrue($t->isVoided());
 
-		$r['status'] = Transaction::STATUS_PENDING_ASYNC;
+		$r['status'] = Transaction::STATUS_CHARGEBACKED;
 		$t = new Transaction($r);
-		$this->assertTrue($t->isPendingAsync());
+		$this->assertTrue($t->isChargebacked());
 
-		// TODO maybe implement all stati
+		$r['status'] = Transaction::STATUS_REFUNDED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isRefunded());
+
+		$r['status'] = Transaction::STATUS_CHARGEBACK_REVERSED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isChargebackReversed());
+
+		$r['status'] = Transaction::STATUS_PRE_ARBITRATED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isPreArbitrated());
+
+		$r['status'] = Transaction::STATUS_REJECTED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isRejected());
+
+		$r['status'] = Transaction::STATUS_CAPTURED;
+		$t = new Transaction($r);
+		$this->assertTrue($t->isCaptured());
 	}
 
-	function testShouldRedirectWithUidAndPendingAsync() {
-
-		$this->fail('TODO define redirect conditions  #1649 ');
-
-		$r = $this->response('debit_sale.xml');
-		$r['status'] = Transaction::STATUS_PENDING_ASYNC;
+	function testShouldRedirectIfRedirectUrlPresent() {
+		$urlPat = '|^https://[^/]+/redirect/to_acquirer/[a-f0-9]{32}$|';
+		$r = $this->response('sale3d_async.xml');
+		$this->assertPattern($urlPat, $r['redirect_url']);
 		$t = new Transaction($r);
 		$this->assertTrue($t->shouldRedirect());
+		$this->assertPattern($urlPat, $t->redirect_url);
+		$this->assertTrue($t->isPendingAsync());
+		$this->assertPattern('|^[a-f0-9]{32}$|', $t->unique_id);
 	}
 
-	function testShouldRedirectWithoutUid() {
-		$r = $this->response('authorize3d_pending_async.xml');
-		$r['unique_id'] = '';
+	function testShouldNotRedirectIfRedirectUrlMissing() {
+		$r = $this->response('sale3d_async.xml');
+		unset($r['redirect_url']);
 		$t = new Transaction($r);
 		$this->assertFalse($t->shouldRedirect());
+		$this->assertNull($t->redirect_url);
+		$this->assertTrue($t->isPendingAsync());
+		$this->assertPattern('|^[a-f0-9]{32}$|', $t->unique_id);
 	}
 
-	function testShouldRedirectWithoutBoth() {
-		$r = $this->response('debit_sale.xml');
-		$r['status'] = Transaction::STATUS_PENDING_ASYNC;
-		$r['unique_id'] = '';
+	function testShouldNotRedirectIfRedirectUrlEmpty() {
+		$r = $this->response('sale3d_async.xml');
+		$r['redirect_url'] = '';
 		$t = new Transaction($r);
 		$this->assertFalse($t->shouldRedirect());
+		$this->assertEqual('', $t->redirect_url);
+		$this->assertTrue($t->isPendingAsync());
+		$this->assertPattern('|^[a-f0-9]{32}$|', $t->unique_id);
 	}
 
-	function testShouldRedirect() {
+	function testShouldNotRedirectIfNotPersitentInHypercharge() {
+		$r = $this->response('sale3d_async.xml');
+		$t = m::mock('\Hypercharge\Transaction[isPersistentInHypercharge]', array($r));
+		$t->shouldReceive('isPersistentInHypercharge')->andReturn(false);
+		$this->assertFalse($t->isPersistentInHypercharge());
+
+		$this->assertFalse($t->shouldRedirect());
+		$this->assertTrue($t->redirect_url);
+		$this->assertTrue($t->isPendingAsync());
+		$this->assertPattern('|^[a-f0-9]{32}$|', $t->unique_id);
+	}
+
+	/**
+	* hypercharge-schema/test/fixtures/responses $> grep 'redirect_url' test/fixtures/responses/*.xml
+	* authorize3d_pending_async.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/0d803525dae4c9fd422571a86c6a9a11</redirect_url>
+	* direct_pay24_sale.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/2e193f8316a460ab2eb0dd935139fb07</redirect_url>
+	* giro_pay_sale.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/2e193f8316a460ab2eb0dd935139fb06</redirect_url>
+	* ideal_sale.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/d104089fedb78a34de5f3714208bba9f</redirect_url>
+	* pay_pal.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/2da6bca931232f84a24fc88a7463e1a9</redirect_url>
+	* sale3d_async.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/ddda0f68a8f12bfca799e8982ceff276</redirect_url>
+	*/
+	function testShouldRedirectTransactionTypes() {
 		$t = new Transaction($this->response('authorize3d_pending_async.xml'));
 		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/0d803525dae4c9fd422571a86c6a9a11');
+
+		$t = new Transaction($this->response('direct_pay24_sale.xml'));
+		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/2e193f8316a460ab2eb0dd935139fb07');
+
+		$t = new Transaction($this->response('giro_pay_sale.xml'));
+		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/2e193f8316a460ab2eb0dd935139fb06');
+
+		$t = new Transaction($this->response('ideal_sale.xml'));
+		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/d104089fedb78a34de5f3714208bba9f');
+
+		$t = new Transaction($this->response('pay_pal.xml'));
+		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/2da6bca931232f84a24fc88a7463e1a9');
+
+		$t = new Transaction($this->response('sale3d_async.xml'));
+		$this->assertTrue($t->shouldRedirect());
+		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/ddda0f68a8f12bfca799e8982ceff276');
 	}
 
 	function testShouldNotRedirect() {
-		$t = new Transaction($this->response('debit_sale.xml'));
-		$this->assertFalse($t->shouldRedirect());
+		$syncResponseFixtures = array(
+			'authorize3d_sync.xml'
+			,'authorize_approved.xml'
+			,'authorize_error.xml'
+			,'capture.xml'
+			,'create_chargeback.xml'
+			,'create_chargeback_reversal.xml'
+			,'create_charged_debit_sale.xml'
+			,'create_debit_chargeback.xml'
+			,'create_deposit.xml'
+			,'create_pre_arbitration.xml'
+			,'create_rejected_debit_sale.xml'
+			,'create_retrieval_request.xml'
+			,'debit_sale.xml'
+			,'init_recurring_authorize.xml'
+			,'init_recurring_debit_authorize.xml'
+			,'init_recurring_debit_sale.xml'
+			,'init_recurring_sale.xml'
+			,'pay_in_advance.xml'
+			,'payment_on_delivery.xml'
+			,'purchase_on_account.xml'
+			,'recurring_debit_sale.xml'
+			,'referenced_fund_transfer.xml'
+			,'refund.xml'
+			,'sale.xml'
+			,'sale3d_sync.xml'
+			,'void.xml'
+		);
+		foreach($syncResponseFixtures as $fixture) {
+			$t = new Transaction($this->response($fixture));
+			$this->assertFalse($t->shouldRedirect(), "$fixture %s");
+		}
 	}
 
 	function testIsPersistentInHypercharge() {
