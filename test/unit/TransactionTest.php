@@ -360,4 +360,53 @@ class TransactionTest extends HyperchargeTestCase {
 		$this->assertEqual($n, 298);
 	}
 
+	function testNotificationRoundtrip() {
+		$postData = $this->fixture('transaction_notification.json');
+		$unique_id = '130319cfb3bf65ff3c4a4045487b173e';
+		$postData['unique_id'] = $unique_id;
+		$postData['signature'] = '1b34dabed996788efcc049567809484454ee8b17';
+		$apiPassword = 'test123';
+		$tn = new TransactionNotification($postData);
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		$notification = Transaction::notification($postData);
+		$this->assertTrue($notification->isVerified());
+		$this->assertTrue($notification->isApproved());
+		// adapt the fixture to the unique_id used here
+		$ackXml = str_replace(
+				'fc6c3c8c0219730c7a099eaa540f70dc'
+				,$unique_id
+				,$this->fixture('transaction_notification_ack.xml')
+		);
+		$this->assertEqual($ackXml, $notification->ack());
+	}
+
+	function testNotificationSignatureBroken() {
+		$postData = $this->fixture('transaction_notification.json');
+		$unique_id = '130319cfb3bf65ff3c4a4045487b173e';
+		$postData['unique_id'] = $unique_id;
+		$postData['signature'] = '1b34dabed996788efcc049567809484454ee8XXX';
+		$apiPassword = 'test123';
+		$tn = new TransactionNotification($postData);
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		$notification = Transaction::notification($postData);
+		$this->assertFalse($notification->isVerified());
+	}
+
+
+	function testNotificationEmptyParamsThrows() {
+		$postData = array();
+		$apiPassword = 'test123';
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		try {
+			new TransactionNotification($postData);
+			$this->fail('Errors\ArgumentError expected!');
+		} catch (Errors\ArgumentError $exe) {
+			$this->assertEqual('Missing or empty argument 1', $exe->getMessage());
+			return;
+		} catch(Exception $exe) {
+			$this->fail('unexpected Exception: '. $exe->toString());
+		}
+
+	}
 }
+

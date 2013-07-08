@@ -304,10 +304,11 @@ class Transaction implements IResponse {
 	/**
 	* @param array $params simply pass $_POST into
 	* @return Hypercharge\TransactionNotification
+	* @throws Hypercharge\Errors\ArgumentError if $params empty
 	*/
 	static function notification($params) {
 		$tn = new TransactionNotification($params);
-		$tn->verify($this->password);
+		$tn->verify(Config::getPassword());
 		return $tn;
 	}
 
