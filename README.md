@@ -159,7 +159,7 @@ You place the code under the url you specify as notification_url (`https://your-
 ```php
 $notification = Hypercharge\Payment::notification($_POST);
 if($notification->isVerified()) {
-  if($notification->paymentWasSuccessfull()) {
+  if($notification->isApproved()) {
     // pseudocode...
     // Notice: to be 100% reacecondition proof update status to 'payment_approved' has to be done atomically
     $updatedRows = update_order(array(
