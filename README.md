@@ -34,6 +34,7 @@ To get started, add one of the following snippets to you global configuration fi
 For development and testing. No real money is transfered.
 
 ```php
+// config.php
 require_once dirname(__DIR__).'/vendor/autoload.php';
 Hypercharge\Config::set(
    'YOUR-MERCHANT-TEST-LOGIN'
@@ -45,6 +46,7 @@ Hypercharge\Config::set(
 ### Live
 
 ```php
+// config.php
 require_once dirname(__DIR__).'/vendor/autoload.php';
 Hypercharge\Config::set(
    'YOUR-MERCHANT-LOGIN'
@@ -59,6 +61,8 @@ Hypercharge\Config::set(
 Submit 77.00 USD as a credit card sale to hypercharge channel.
 
 ```php
+require_once 'config.php';
+
 $channelToken = 'e9fd7a957845450fb7ab9dccb498b6e1f6e1e3aa';
 
 $sale = Hypercharge\Transaction::sale($channelToken, array(
@@ -91,6 +95,8 @@ The following example is more complex.
     In the mean time hypercharge notifies your backend by calling `notification_url`, providing the payment status.
 
 ```php
+require_once 'config.php';
+
 try {
   // create the WPF session
   $wpf = Hypercharge\Payment::wpf(array(
@@ -157,6 +163,8 @@ hypercharge -> plain POST data -> your_server
 You place the code under the url you specify as notification_url (`https://your-server.com/hypercharge-wpf-notifications.php` in the example abough)
 
 ```php
+require_once 'config.php';
+
 $notification = Hypercharge\Payment::notification($_POST);
 if($notification->isVerified()) {
   if($notification->isApproved()) {
@@ -180,9 +188,11 @@ if($notification->isVerified()) {
       // hypercharge notification already received! ignore duplicate notification.
     }
   }
-  echo $notification->ack();
-  // ensure output ends here
-  die();
+
+  // Tell hypercharge the notification has been successfully processed
+  // and ensure output ends here
+  die( $notification->ack() );
+
 } else {
   // signature invalid or message does not come from hypercharge.
   // check your configuration or notificatoin request origin
@@ -198,6 +208,8 @@ The Notification code is the same as WPF Notification abough.
 your_server -> POST XML -> hypercharge
 
 ```php
+require_once 'config.php';
+
 try {
   // create the mobile payment session
   $payment = Hypercharge\Payment::mobile(array(

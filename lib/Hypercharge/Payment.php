@@ -206,10 +206,15 @@ class Payment implements IResponse {
 	/**
 	* @param array $params simply pass $_POST into
 	* @return Hypercharge\PaymentNotification
+	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not with in Config::set()
 	*/
-	function notification($params) {
+	static function notification($params) {
 		$pn = new PaymentNotification($params);
-		$pn->verify($this->password);
+		$passw = Config::getPassword();
+		if(empty($passw)) {
+			throw new Errors\ArgumentError('password is not configured! See Hypercharge\Config::set()');
+		}
+		$pn->verify($passw);
 		return $pn;
 	}
 

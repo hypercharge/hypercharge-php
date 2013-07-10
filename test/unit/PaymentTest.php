@@ -106,5 +106,55 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertIsA($trx->billing_address, 'Hypercharge\Address');
 	}
 
+	function testNotificationRoundtrip() {
+		$postData = $this->fixture('payment_notification.json');
+		$apiPassword = 'b5af4c9cf497662e00b78550fd87e65eb415f42f';
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		$notification = Payment::notification($postData);
+		$this->assertTrue($notification->isVerified());
+		$this->assertFalse($notification->isApproved());
+		$this->assertEqual(Payment::STATUS_CANCELED, $notification->payment_status);
+		$this->assertEqual(Payment::STATUS_CANCELED, $notification->getPayment()->status);
+		$this->assertEqual($this->fixture('payment_notification_ack.xml'), $notification->ack());
+	}
+
+	function testNotificationSignatureBroken() {
+		$postData = $this->fixture('payment_notification.json');
+		$apiPassword = 'wrong';
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		$notification = Payment::notification($postData);
+		$this->assertFalse($notification->isVerified());
+	}
+
+	function testNotificationEmptyParamsThrows() {
+		$postData = array();
+		$apiPassword = 'b5af4c9cf497662e00b78550fd87e65eb415f42f';
+		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
+		try {
+			Payment::notification($postData);
+			$this->fail('Errors\ArgumentError expected!');
+		} catch (Errors\ArgumentError $exe) {
+			$this->assertEqual('Missing or empty argument 1', $exe->getMessage());
+			return;
+		} catch(Exception $exe) {
+			$this->fail('unexpected Exception: '. $exe->toString());
+		}
+	}
+
+	function testNotificationMissingPasswordThrows() {
+		$postData = $this->fixture('payment_notification.json');
+		Config::set('username', '', Config::ENV_SANDBOX);
+		$this->assertEqual('', Config::getPassword());
+		try {
+			Payment::notification($postData);
+			$this->fail('Errors\ArgumentError expected!');
+		} catch (Errors\ArgumentError $exe) {
+			$this->assertEqual('password is not configured! See Hypercharge\Config::set()', $exe->getMessage());
+			return;
+		} catch(Exception $exe) {
+			$this->fail('unexpected Exception: '. $exe->toString());
+		}
+	}
+
 }
 

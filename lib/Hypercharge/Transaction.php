@@ -304,11 +304,15 @@ class Transaction implements IResponse {
 	/**
 	* @param array $params simply pass $_POST into
 	* @return Hypercharge\TransactionNotification
-	* @throws Hypercharge\Errors\ArgumentError if $params empty
+	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not with in Config::set()
 	*/
 	static function notification($params) {
 		$tn = new TransactionNotification($params);
-		$tn->verify(Config::getPassword());
+		$passw = Config::getPassword();
+		if(empty($passw)) {
+			throw new Errors\ArgumentError('password is not configured! See Hypercharge\Config::set()');
+		}
+		$tn->verify($passw);
 		return $tn;
 	}
 
