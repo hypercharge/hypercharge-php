@@ -82,24 +82,34 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 		////////////
 		// Payments
 
-		// action = 'create'
-		$url = m::mock('Hypercharge\PaymentUrl[getUrl]', array($mode));
-		$url->shouldReceive('getUrl')->andReturn($c->paymentHost.'/payment');
-		$factory->shouldReceive('createPaymentUrl')->with()->andReturn($url);
 
 		foreach(array('cancel', 'void', 'capture', 'refund', 'reconcile') as $action) {
 			$url = m::mock('Hypercharge\PaymentUrl[getUrl]', array($mode, $action));
 			$url->shouldReceive('getUrl')->andReturn($c->paymentHost.'/payment');
 			$factory->shouldReceive('createPaymentUrl')->with($action)->andReturn($url);
 		}
+		// action = 'create'
+		$url = m::mock('Hypercharge\PaymentUrl[getUrl]', array($mode));
+		$url->shouldReceive('getUrl')->andReturn($c->paymentHost.'/payment');
+		$factory->shouldReceive('createPaymentUrl')->with()->andReturn($url);
 
 		///////////////
 		// Transactions
 		//
 		foreach(array('process', 'reconcile', 'reconcile/by_date') as $action) {
+			// USD channel
 			$url = m::mock('Hypercharge\TransactionUrl[getUrl]', array($mode, $c->channelTokens->USD, $action));
 			$url->shouldReceive('getUrl')->andReturn($c->gatewayHost);
 			$factory->shouldReceive('createTransactionUrl')->with($c->channelTokens->USD, $action)->andReturn($url);
+			// EUR channel
+			$url = m::mock('Hypercharge\TransactionUrl[getUrl]', array($mode, $c->channelTokens->EUR, $action));
+			$url->shouldReceive('getUrl')->andReturn($c->gatewayHost);
+			$factory->shouldReceive('createTransactionUrl')->with($c->channelTokens->EUR, $action)->andReturn($url);
+
+
+			$url = m::mock('Hypercharge\TransactionUrl[getUrl]', array($mode, 'wrong_channel_token', $action));
+			$url->shouldReceive('getUrl')->andReturn($c->gatewayHost);
+			$factory->shouldReceive('createTransactionUrl')->with('wrong_channel_token', $action)->andReturn($url);
 		}
 
 		Config::setFactory($factory);

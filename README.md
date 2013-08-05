@@ -1,30 +1,44 @@
 # hypercharge-php
 
-PHP SDK for the hypercharge payment gateway.
+PHP SDK for the Hypercharge payment gateway.
 
-Version 1.24.2-alpha
+Version 1.24.3-beta
 
-July 4, 2013
+August 5, 2013
 
 tested with PHP 5.3.25 on OSX/Linux
 
 ## Installation
 
-We recommend using the php package manger [composer](http://getcomposer.org/).
+Do not download the Hypercharge PHP SKD files manually.
+You download and install it with [composer](http://getcomposer.org/), a php package manger.
 
-Add the following line to your `composer.json` file *require* section
+Let's say  `MY_PROJECT/` is your project root folder.
 
+
+Do the following three steps:
+
+1) [Download composer.phar](http://getcomposer.org/download/) to `MY_PROJECT/composer.phar`
+
+2) With your text editor create a `MY_PROJECT/composer.json` containing
 ```json
 {
   "require": {
+    "php": ">=5.3",
     "hypercharge/hypercharge-php": "*"
   }
 }
 ```
-install hypercharge-php and its dependencies
+This will tell composer to install the most recent Hypercharge PHP SDK version.
+
+3) in the shell (dos console or terminal) go to `MY_PROJECT/` and run the command
 ```sh
-composer install
+$ php composer.phar install
 ```
+This downloads and installs Hypercharge PHP SDK and its dependencies into `MY_PROJECT/vendor/`.
+
+Later, when deploying your project to your server you will have to upload the complete `MY_PROJECT/vendor/` directory to your server as well.
+
 
 ## Configuration
 
@@ -54,7 +68,7 @@ Hypercharge\Config::set(
   ,Hypercharge\Config::ENV_LIVE
 );
 ```
-`vendor/autoload.php` has been created by [composer](http://getcomposer.org/).
+If there is no `MY_PROJECT/vendor/autoload.php` in your project follow the [installation instructions](#installation).
 
 ## Credit Card sale Transaction
 
@@ -277,3 +291,7 @@ Run the unit tests
 ```sh
 php test/all_tests.php
 ```
+
+## Warranty
+
+This software is provided "as is" and without any express or implied warranties, including, without limitation, the implied warranties of merchantibility and fitness for a particular purpose.

@@ -8,13 +8,14 @@ if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
 class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function setUp() {
-		$this->credentials('sandbox'); //'development'; 'sandbox2';
+		$this->credentials('sandbox'); //'development'; 'sandbox';
 		// echo "\n";
 		// print_r($this->credentials);
 		Config::setIdSeparator('---');
 
 		$this->expected_payment_methods = array(
-			"credit_card"
+			"barzahlen"
+			,"credit_card"
 			,"direct_debit"
 			,"direct_pay24_sale"
 			,"giro_pay_sale"
@@ -63,7 +64,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual('new', $payment->status);
 		$this->assertEqual($this->credentials->paymentHost.'/pay/step1/'.$payment->unique_id, $payment->redirect_url);
 		sort($payment->payment_methods);
-		$this->assertEqual($payment->payment_methods, $this->expected_payment_methods, 'paymet_methods %s  '.print_r($payment->payment_methods, true));
+		$this->assertEqual(sort($payment->payment_methods), $this->expected_payment_methods, 'paymet_methods %s actual: '.print_r($payment->payment_methods, true) ."\nexpected: ". print_r($this->expected_payment_methods, true));
 		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
 		$o = Helper::extractRandomId($payment->transaction_id);
 		$this->assertEqual($o->transaction_id, 'wev238f328nc');
@@ -86,7 +87,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($payment->redirect_url, $payment->submit_url);
 		$this->assertEqual($this->credentials->paymentHost.'/mobile/cancel/'.$payment->unique_id, $payment->cancel_url);
 		sort($payment->payment_methods);
-		$this->assertEqual($payment->payment_methods, $this->expected_payment_methods, 'paymet_methods %s  '.print_r($payment->payment_methods, true));
+		$this->assertEqual($payment->payment_methods, $this->expected_payment_methods, 'paymet_methods %s  '.print_r($payment->payment_methods, true) ."\nexpected: ". print_r($this->expected_payment_methods, true));
 		$this->assertPattern('/^wev238f328nc---[0-9a-f]{13}$/', $payment->transaction_id);
 		$o = Helper::extractRandomId($payment->transaction_id);
 		$this->assertEqual($o->transaction_id, 'wev238f328nc');

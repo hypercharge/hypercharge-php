@@ -19,7 +19,7 @@ class TransactionRequest implements IRequest {
       //,'sepa_debit'
       ,'direct_pay24_sale'
       ,'giro_pay_sale'
-      //,'paysafe_card_sale'
+      ,'pay_safe_card_sale'
       ,'init_recurring_authorize'
       //,'debit_chargeback'
       ,'purchase_on_account'

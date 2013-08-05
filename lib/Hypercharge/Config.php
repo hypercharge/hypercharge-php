@@ -1,7 +1,7 @@
 <?php
 namespace Hypercharge;
 
-const VERSION = '1.24.0';
+const VERSION = '1.24.3';
 
 class Config {
 

@@ -38,7 +38,7 @@ class Transaction implements IResponse {
 	}
 
 	/**
-	* @return boolean true if transaction successfully created and it's an async transaction (e.g. 'sale3d')
+	* @return boolean true if transaction successfully created and response has a redirect_url
 	*/
 	function shouldRedirect() {
 		return $this->isPersistentInHypercharge() && !empty($this->redirect_url);
@@ -257,6 +257,62 @@ class Transaction implements IResponse {
 	*/
 	static function direct_pay24_sale($channelToken, $request) {
 		return self::_call('direct_pay24_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function ideal_sale($channelToken, $request) {
+		return self::_call('ideal_sale', $request, $channelToken);
+	}
+
+	/**
+	* Kauf auf Rechnung
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function purchase_on_account($channelToken, $request) {
+		return self::_call('purchase_on_account', $request, $channelToken);
+	}
+
+	/**
+	* Vorkasse
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function pay_in_advance($channelToken, $request) {
+		return self::_call('pay_in_advance', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function payment_on_delivery($channelToken, $request) {
+		return self::_call('payment_on_delivery', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function recurring_debit_sale($channelToken, $request) {
+		return self::_call('recurring_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	*/
+	static function pay_safe_card_sale($channelToken, $request) {
+		return self::_call('pay_safe_card_sale', $request, $channelToken);
 	}
 
 	/**

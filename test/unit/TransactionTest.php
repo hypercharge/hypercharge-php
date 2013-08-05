@@ -124,6 +124,7 @@ class TransactionTest extends HyperchargeTestCase {
 	* ideal_sale.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/d104089fedb78a34de5f3714208bba9f</redirect_url>
 	* pay_pal.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/2da6bca931232f84a24fc88a7463e1a9</redirect_url>
 	* sale3d_async.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/ddda0f68a8f12bfca799e8982ceff276</redirect_url>
+	* pay_safe_card_sale.xml:  <redirect_url>https://test.hypercharge.net/redirect/to_acquirer/ddda0f68a8f12bfca799e8982ceff276</redirect_url>
 	*/
 	function testShouldRedirectTransactionTypes() {
 		$t = new Transaction($this->response('authorize3d_pending_async.xml'));
@@ -146,7 +147,7 @@ class TransactionTest extends HyperchargeTestCase {
 		$this->assertTrue($t->shouldRedirect());
 		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/2da6bca931232f84a24fc88a7463e1a9');
 
-		$t = new Transaction($this->response('sale3d_async.xml'));
+		$t = new Transaction($this->response('pay_safe_card_sale.xml'));
 		$this->assertTrue($t->shouldRedirect());
 		$this->assertEqual($t->redirect_url, 'https://test.hypercharge.net/redirect/to_acquirer/ddda0f68a8f12bfca799e8982ceff276');
 	}
@@ -406,6 +407,16 @@ class TransactionTest extends HyperchargeTestCase {
 		} catch(Exception $exe) {
 			$this->fail('unexpected Exception: '. $exe->toString());
 		}
+	}
+
+	function testMethodsForAllowedRequestsExist() {
+		$reflection = new \ReflectionClass('Hypercharge\Transaction');
+		$methods = $reflection->getMethods(\ReflectionMethod::IS_STATIC);
+		$methods = array_map(function($m) {return $m->name;}, $methods);
+		$nonTrxTypes = array('_call', 'find', 'each', 'page');
+		$methods = array_diff($methods, $nonTrxTypes);
+		$diff = array_diff(TransactionRequest::getAllowedTypes(), $methods);
+		$this->assertEqual(array(), $diff, '%s diff: '. print_r($diff, true));
 	}
 }
 
