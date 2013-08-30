@@ -127,6 +127,7 @@ try {
   if($wpf->shouldRedirect()) {
     // ok, WPF session created.
 
+    // pseudocode implement!
     save_payment_unique_id_to_order( $payment->unique_id );
 
     // redirect user to WPF
@@ -135,6 +136,8 @@ try {
   // handle errors...
   } elseif($payment->isPersistentInHypercharge()) {
     // payment has been created in hypercharge but something went wrong.
+
+    // pseudocode implement!
     save_payment_unique_id_to_order( $payment->unique_id );
 
     // 1.) check $payment->error (a subclass of Hypercharge\Errors\Error)
@@ -172,35 +175,108 @@ The WPF is displayed in English by default (`'en'`). If you want a German WPF si
 
 ## WPF Notification
 
-hypercharge -> plain POST data -> your_server
+Notifications is a server to server request in the background. Neither webbrowser nor user interaction is involved.
+With the notification hypercharge tells your system if the payment was successfull or not.
 
-You place the code under the url you specify as notification_url (`https://your-server.com/hypercharge-wpf-notifications.php` in the example abough)
+```
+hypercharge                 your-server.com/hypercharge-wpf-notifications.php
+    |   -> http POST request: notification ->   |
+    |                                           |     -> store notification status to your DB
+    |                                           |     -> e.g. trigger shipping (sucess) or send failure email to user (NOT success)
+    |   <- http response: ack              <-   |
 
+```
+
+You place the code under the url you specify as `notification_url` (`https://your-server.com/hypercharge-wpf-notifications.php` in the "Web Payment Form (WPF) session" example abough)
+
+A scelleton:
+
+```php
+require_once 'config.php';
+
+// $notification is an instance of Hypercharge\PaymentNotification
+$notification = Hypercharge\Payment::notification($_POST);
+if($notification->isVerified()) {
+  $payment = $notification->getPayment();
+  if($notification->isApproved()) {
+
+    ////////////////////////////////////////
+    // payment successfull
+    // implement your business logic here
+    ////////////////////////////////////////
+
+  } else {
+
+    ////////////////////////////////////////
+    // payment NOT successfull
+    // check $payment->status
+    // implement your business logic here
+    ////////////////////////////////////////
+
+  }
+
+  // http response.
+  // Tell hypercharge the notification has been successfully processed
+  // and ensure output ends here
+  die( $notification->ack() );
+
+} else {
+  // signature invalid or message does not come from hypercharge.
+  // check your configuration or notificatoin request origin
+}
+```
+
+See [PaymentNotification](https://github.com/hypercharge/hypercharge-php/blob/master/lib/Hypercharge/PaymentNotification.php) class definition for how to use `$notification` or `$payment`.
+
+An example with symbolic busineslogic as pseudocode:
 ```php
 require_once 'config.php';
 
 $notification = Hypercharge\Payment::notification($_POST);
 if($notification->isVerified()) {
+  $payment = $notification->getPayment();
   if($notification->isApproved()) {
-    // pseudocode...
+
+    ////////////////////////////////////////
+    // payment successfull
+    // implement your business logic here
+
+    // example as pseudocode, replace with your own code...
+
+    // store notification status to your database
     // Notice: to be 100% reacecondition proof update status to 'payment_approved' has to be done atomically
     $updatedRows = update_order(array(
-      'set'   => array('status'=> 'payment_approved')
+      'set'   => array('status'=> 'payment_approved'),
       'where' => array('status'=> 'waiting_for_payment_approval'
-                      ,'hypercharge_unique_id' => $notification->payment_unique_id
+                      ,'hypercharge_unique_id' => $payment->unique_id
       )
     ));
 
     if($updatedRows == 1) {
       // ok, start shipping
       $order = find_order_where(array('status' => 'payment_approved'
-                                      ,'hypercharge_unique_id' => $notification->payment_unique_id
+                                      ,'hypercharge_unique_id' => $payment->unique_id
       ));
       $order->ship_goods_to_customer();
 
     } else {
       // hypercharge notification already received! ignore duplicate notification.
     }
+    //
+    // END of your business logic
+    ////////////////////////////////////////
+
+  } else {
+
+    ////////////////////////////////////////
+    // payment NOT successfull
+    // check $payment->status and handle it
+
+    // ...
+
+    // END of your business logic here
+    ////////////////////////////////////////
+
   }
 
   // Tell hypercharge the notification has been successfully processed
@@ -254,7 +330,7 @@ try {
     // or misspelled fields in $paymentData
 
   }
-} catch(Hypercharge\Error $e) {
+} catch(Hypercharge\Errors\Error $e) {
   // no payment created in hypercharge because of local pre-validation errors
 
   // check your php code

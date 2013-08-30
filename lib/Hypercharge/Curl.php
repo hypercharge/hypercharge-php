@@ -1,27 +1,38 @@
 <?php
 namespace Hypercharge;
 
+// workaround to load SCHEMA_VERSION
+JsonSchemaValidator::schemaPathFor('foo');
+// workaround to load VERSION
+Config::ENV_LIVE;
+
 class Curl implements IHttpsClient {
 	private $user;
 	private $passw;
+	/**
+	* curl handle
+	*/
+	private $ch;
 	public $timeout = 30;
 
 	function __construct($user, $passw) {
 		$this->user = $user;
 		$this->passw = $passw;
+		$this->init();
 	}
 
-	/**
-	* @param string $url
-	* @param string $xmlStr
-	* @returns string response body
-	* @throws Hypercharge\Errors\NetworkError
-	*/
-	function xmlPost($url, $xmlStr) {
-		Config::getLogger()->debug(Helper::stripCc('POST '.$url.'  '. $xmlStr));
-		$ch = curl_init();
+	function __destruct() {
+		if(method_exists($this, 'close')) $this->close();
+	}
+
+	function close() {
+		if($this->ch) curl_close($this->ch);
+		$this->ch = 0;
+	}
+
+	private function init() {
+		$this->ch = $ch = curl_init();
 		curl_setopt($ch, CURLOPT_VERBOSE, false);
-		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_FAILONERROR, true);
 		curl_setopt($ch, CURLOPT_POST, false); // yes, off here. curl turns it on by itself
@@ -31,23 +42,143 @@ class Curl implements IHttpsClient {
 		curl_setopt($ch, CURLOPT_TIMEOUT, $this->timeout);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
+	}
 
-		curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-type: text/xml', 'Accept: text/xml'));
+	/**
+	* @param string $contentType e.g. 'text/xml' or 'application/json'
+	* @param array $header array of string e.g array("Content-Length: 1294587")
+	* @return void
+	*/
+	function setHeader($contentType, $header) {
+		$default = array(
+			'Content-type: '.$contentType
+			,'Accept: '     .$contentType
+			,'X-Hypercharge-Schema: '.SCHEMA_VERSION
+		);
+		$header = array_merge($default, $header);
+		curl_setopt($this->ch, CURLOPT_HTTPHEADER, $header);
+	}
+
+	/**
+	* @param string $url
+	* @param string $xmlStr
+	* @return string response body
+	* @throws Hypercharge\Errors\NetworkError
+	*/
+	function xmlPost($url, $xmlStr) {
+		$this->debug('POST '.$url."\n". $xmlStr);
+		$ch = $this->ch;
+
+		curl_setopt($ch, CURLOPT_URL, $url);
+
+		$this->setHeader('text/xml', array('Content-Length: '. mb_strlen($xmlStr)));
+
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlStr);
 
 		$response_string = curl_exec($ch);
 
 		//check for transport errors
 		if(curl_errno($ch) != 0) {
-			Config::getLogger()->error(Helper::stripCc(curl_error($ch).' '.print_r(curl_getinfo($ch), true)));
+			$this->logError(curl_error($ch).' '.print_r(curl_getinfo($ch), true));
 			$exe = new Errors\NetworkError($url, curl_error($ch), print_r(curl_getinfo($ch), true));
-			curl_close($ch);
 			throw $exe;
 		}
-		curl_close($ch);
 
-		Config::getLogger()->debug(Helper::stripCc('response:  '. $response_string));
+		$this->debug('response:  '. $response_string);
 
 		return $response_string;
+	}
+
+	/**
+	* @param Hypercharge\IUrl $url
+	* @return StdClass parsed json response body
+	* @throws Hypercharge\Errors\Error
+	*/
+	public function jsonGet(IUrl $url) {
+		return $this->jsonRequest('GET', $url->get());
+	}
+
+	/**
+	* @param string $url
+	* @param array $data
+	* @return StdClass parsed json response body
+	* @throws Hypercharge\Errors\Error
+	*/
+	public function jsonPost(IUrl $url, $data) {
+		return $this->jsonRequest('POST', $url->get(), json_encode($data));
+	}
+
+	/**
+	* @param string $url
+	* @param array $data
+	* @return StdClass parsed json response body
+	* @throws Hypercharge\Errors\Error
+	*/
+	public function jsonPut(IUrl $url, $data) {
+		return $this->jsonRequest('PUT', $url->get(), json_encode($data));
+	}
+
+	/**
+	* @param string $url
+	* @return void
+	* @throws Hypercharge\Errors\Error
+	*/
+	public function jsonDelete(IUrl $url) {
+		return $this->jsonRequest('DELETE', $url->get());
+	}
+
+
+	/**
+	* @param string $method http method 'GET', 'POST', 'PUT', 'DELETE'
+	* @param string $url
+	* @param string $json
+	* @return StdClass parsed json response body
+	* @throws Hypercharge\Errors\Error
+	*/
+	function jsonRequest($method, $url, $json = null) {
+		$this->debug($method.' '.$url);
+
+		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
+		// $header = array('X-HTTP-Method-Override: '.$method);
+
+		$header = array();
+		if($json !== null) {
+			curl_setopt($this->ch, CURLOPT_POSTFIELDS, $json);
+			$header[] = 'Content-Length: '.mb_strlen($json);
+			$this->debug('data: '. $json);
+		}
+
+		$this->setHeader('application/json', $header);
+
+		curl_setopt($this->ch, CURLOPT_URL, $url);
+
+		$response_string = curl_exec($this->ch);
+
+		//check for transport errors
+		if(curl_errno($this->ch) != 0) {
+			$exe = null;
+			$this->logError(curl_error($this->ch).' '.print_r(curl_getinfo($this->ch), true));
+			if(curl_errno($this->ch) == 400 && !empty($response_string)) {
+				$errorHash = json_decode($response_string);
+				if($errorHash) $exe = Errors\errorFromResponseHash($errorHash);
+			}
+			if(!$exe) {
+				$exe = new Errors\NetworkError($url, curl_error($this->ch), print_r(curl_getinfo($this->ch), true));
+			}
+			throw $exe;
+		}
+		$this->debug('response: '. $response_string);
+
+		if(!empty($response_string)) {
+			return json_decode($response_string);
+		}
+	}
+
+	function debug($str) {
+		Config::getLogger()->debug(Helper::stripCc($str));
+	}
+
+	function logError($str) {
+		Config::getLogger()->error(Helper::stripCc($str));
 	}
 }

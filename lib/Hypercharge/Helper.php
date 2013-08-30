@@ -46,6 +46,12 @@ class Helper {
 		}
 	}
 
+	static function assign_json($self, $p) {
+		foreach($p as $k=>$v) {
+			$self->{$k} = $v;
+		}
+	}
+
 	/**
 	* appends random suffix to $transaction_id to prevent "'transaction_id' has already been used!" error.
 	* default divider is '---'
@@ -116,4 +122,22 @@ class Helper {
 		return preg_replace(array_keys($replace), array_values($replace), $str);
 	}
 
+	/**
+	* @param string $uid
+	* @throws ValidationError if $uid is no 32 char hex
+	*/
+	static function validateUniqueId($uid) {
+		if(!preg_match('/^[a-f0-9]{32}$/', $uid)) {
+			throw new Errors\ValidationError(array(array('property'=>'unique_id', 'message'=>'must be a 32 character lower case hex string')));
+		}
+	}
+
+	/**
+	* @param array|object $d
+	* @return object
+	*/
+	static function arrayToObject($d) {
+		if(is_object($d)) return $d;
+		return json_decode(json_encode($d));
+	}
 }

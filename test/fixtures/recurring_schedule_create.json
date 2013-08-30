@@ -1,0 +1,9 @@
+{
+    "payment_transaction_unique_id": "d87245bcbe37a203210752f532f93669",
+    "amount": 73100,
+    "start_date": "2013-11-13",
+    "end_date": "2014-06-30",
+    "interval": "monthly",
+   	"expiring_notification_time": 30,
+    "active": true
+}

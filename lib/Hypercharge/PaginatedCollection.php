@@ -7,14 +7,18 @@ class PaginatedCollection implements \Iterator {
 
     protected $page, $per_page, $total_count, $pages_count;
 
-    public function __construct($page=1, $per_page=10, $total_count=0, $pages_count=1) {
+    public function __construct($page=1, $per_page=10, $total_count=0, $pages_count=null) {
         $this->page = (int) $page;
         $this->per_page = (int) $per_page;
         $this->total_count = (int) $total_count;
+
+        // calculate pages_count if not given
+        if($pages_count==null) $pages_count = ceil($total_count / max($per_page, 1));
         $this->pages_count = (int) $pages_count;
     }
     /* ********
     * BEGIN php Iterator methods
+    * iterates over entries
     */
     function rewind() {
         $this->position = 0;
@@ -44,7 +48,7 @@ class PaginatedCollection implements \Iterator {
     }
 
     /* ********
-    * BEGIN ruby Pagination methods
+    * BEGIN ruby-style Pagination methods
     */
 
     function getPage() {
@@ -70,7 +74,9 @@ class PaginatedCollection implements \Iterator {
     function hasNextPage() {
         return $this->page < $this->pages_count;
     }
-
+    /**
+    * @return int next page number or null if no next page
+    */
     function getNextPage() {
         if($this->hasNextPage()) return $this->page + 1;
     }
@@ -81,4 +87,5 @@ class PaginatedCollection implements \Iterator {
     function push($e) {
         array_push($this->entries, $e);
     }
+
 }

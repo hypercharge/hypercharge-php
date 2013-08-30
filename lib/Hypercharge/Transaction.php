@@ -110,6 +110,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function sale($channelToken, $request) {
 		return self::_call('sale', $request, $channelToken);
@@ -119,6 +120,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function authorize($channelToken, $request) {
 		return self::_call('authorize', $request, $channelToken);
@@ -128,6 +130,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function capture($channelToken, $request) {
 		return self::_call('capture', $request, $channelToken);
@@ -137,6 +140,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function refund($channelToken, $request) {
 		return self::_call('refund', $request, $channelToken);
@@ -146,6 +150,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function void($channelToken, $request) {
 		return self::_call('void', $request, $channelToken);
@@ -155,6 +160,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function referenced_fund_transfer($channelToken, $request) {
 		return self::_call('referenced_fund_transfer', $request, $channelToken);
@@ -164,6 +170,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function authorize3d($channelToken, $request) {
 		return self::_call('authorize3d', $request, $channelToken);
@@ -173,6 +180,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function sale3d($channelToken, $request) {
 		return self::_call('sale3d', $request, $channelToken);
@@ -182,6 +190,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function init_recurring_sale($channelToken, $request) {
 		return self::_call('init_recurring_sale', $request, $channelToken);
@@ -191,6 +200,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function init_recurring_authorize($channelToken, $request) {
 		return self::_call('init_recurring_authorize', $request, $channelToken);
@@ -200,6 +210,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function recurring_sale($channelToken, $request) {
 		return self::_call('recurring_sale', $request, $channelToken);
@@ -209,6 +220,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function pay_pal($channelToken, $request) {
 		return self::_call('pay_pal', $request, $channelToken);
@@ -218,6 +230,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function debit_sale($channelToken, $request) {
 		return self::_call('debit_sale', $request, $channelToken);
@@ -227,6 +240,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function init_recurring_debit_sale($channelToken, $request) {
 		return self::_call('init_recurring_debit_sale', $request, $channelToken);
@@ -236,6 +250,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function init_recurring_debit_authorize($channelToken, $request) {
 		return self::_call('init_recurring_debit_authorize', $request, $channelToken);
@@ -245,6 +260,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function giro_pay_sale($channelToken, $request) {
 		return self::_call('giro_pay_sale', $request, $channelToken);
@@ -254,6 +270,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function direct_pay24_sale($channelToken, $request) {
 		return self::_call('direct_pay24_sale', $request, $channelToken);
@@ -263,6 +280,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function ideal_sale($channelToken, $request) {
 		return self::_call('ideal_sale', $request, $channelToken);
@@ -273,6 +291,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function purchase_on_account($channelToken, $request) {
 		return self::_call('purchase_on_account', $request, $channelToken);
@@ -283,6 +302,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function pay_in_advance($channelToken, $request) {
 		return self::_call('pay_in_advance', $request, $channelToken);
@@ -292,6 +312,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function payment_on_delivery($channelToken, $request) {
 		return self::_call('payment_on_delivery', $request, $channelToken);
@@ -301,6 +322,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function recurring_debit_sale($channelToken, $request) {
 		return self::_call('recurring_debit_sale', $request, $channelToken);
@@ -310,6 +332,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
 	static function pay_safe_card_sale($channelToken, $request) {
 		return self::_call('pay_safe_card_sale', $request, $channelToken);
@@ -320,6 +343,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param string $unique_id hex Transaction unique_id
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function find($channelToken, $unique_id) {
 		$request = new SimpleTransactionReturningRequest('reconcile', $unique_id);
@@ -335,6 +359,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request optional array or Hypercharge\ReconcileByDateRequest  {start_date: "YYYY-MM-DD", end_date: "YYYY-MM-DD", period: String}
 	* @return Hypercharge\PaginatedCollection containing instances of Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function page($channelToken, $request = null) {
 		$request = Helper::ensure('ReconcileByDateRequest', $request);
@@ -350,6 +375,7 @@ class Transaction implements IResponse {
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\ReconcileByDateRequest  {start_date: "YYYY-MM-DD", end_date: "YYYY-MM-DD", period: String}
 	* @param function $callback parameter (Hypercharge\Transaction $trx)
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function each($channelToken, $request, $callback) {
 		$request = Helper::ensure('ReconcileByDateRequest', $request);
@@ -360,7 +386,7 @@ class Transaction implements IResponse {
 	/**
 	* @param array $params simply pass $_POST into
 	* @return Hypercharge\TransactionNotification
-	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not with in Config::set()
+	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not set with Config::set()
 	*/
 	static function notification($params) {
 		$tn = new TransactionNotification($params);

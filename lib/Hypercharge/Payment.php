@@ -119,6 +119,7 @@ class Payment implements IResponse {
 	/**
 	* @param mixed $request array or Hypercharge\WpfPaymentRequest
 	* @return Hypercharge\WpfPayment
+	* @throws Hypercharge\Errors\Error if no payment created on hypercharge server
 	*/
 	static function wpf($request) {
 		$request['type'] = 'WpfPayment';
@@ -132,6 +133,7 @@ class Payment implements IResponse {
 	/**
 	* @param mixed $request array or Hypercharge\MobilePaymentRequest
 	* @return Hypercharge\MobilePayment
+	* @throws Hypercharge\Errors\Error if no payment created on hypercharge server
 	*/
 	static function mobile($request) {
 		$request['type'] = 'MobilePayment';
@@ -145,6 +147,7 @@ class Payment implements IResponse {
 	/**
 	* @param string $unique_id a Payment.unique_id
 	* @return Hypercharge\Payment
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function cancel($unique_id) {
 		$request = new SimplePaymentReturningRequest('cancel', $unique_id);
@@ -157,6 +160,7 @@ class Payment implements IResponse {
 	/**
 	* @param string $unique_id a Payment.unique_id
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function void($unique_id) {
 		$request = new SimplePaymentReturningRequest('void', $unique_id);
@@ -169,6 +173,7 @@ class Payment implements IResponse {
 	/**
 	* @param string $unique_id a Payment.unique_id
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function capture($unique_id) {
 		$request = new SimplePaymentReturningRequest('capture', $unique_id);
@@ -181,6 +186,7 @@ class Payment implements IResponse {
 	/**
 	* @param string $unique_id a Payment.unique_id
 	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function refund($unique_id) {
 		$request = new SimplePaymentReturningRequest('refund', $unique_id);
@@ -194,6 +200,7 @@ class Payment implements IResponse {
 	* see "reconcile" in Hypercharge API doc
 	* @param string $unique_id a Payment.unique_id
 	* @return Hypercharge\Payment
+	* @throws Hypercharge\Errors\Error
 	*/
 	static function find($unique_id) {
 		$request = new SimplePaymentReturningRequest('reconcile', $unique_id);
@@ -206,7 +213,7 @@ class Payment implements IResponse {
 	/**
 	* @param array $params simply pass $_POST into
 	* @return Hypercharge\PaymentNotification
-	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not with in Config::set()
+	* @throws Hypercharge\Errors\ArgumentError if $params empty or merchant password not set with Config::set()
 	*/
 	static function notification($params) {
 		$pn = new PaymentNotification($params);

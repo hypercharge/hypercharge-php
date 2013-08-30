@@ -55,7 +55,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($o->transaction_id, $data['transaction_id']);
 	}
 
-	function testInvalidChannelTokenChouldReturnError() {
+	function testInvalidChannelTokenShouldThrowException() {
 		$data = $this->fixture('sale.json');
 		$this->expectException(new Errors\AccountError('Transaction failed, please contact support!'));
 		$trx = Transaction::sale('wrong_channel_token', $data);

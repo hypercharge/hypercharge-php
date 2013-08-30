@@ -81,8 +81,6 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 
 		////////////
 		// Payments
-
-
 		foreach(array('cancel', 'void', 'capture', 'refund', 'reconcile') as $action) {
 			$url = m::mock('Hypercharge\PaymentUrl[getUrl]', array($mode, $action));
 			$url->shouldReceive('getUrl')->andReturn($c->paymentHost.'/payment');
@@ -114,6 +112,18 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 
 		Config::setFactory($factory);
 	}
+
+	// function mockV2Url() {
+	// 	$mode = Config::getMode();
+
+	// 	$c = $this->credentials;
+	// 	$factory = m::mock('Hypercharge\Factory[createV2Url]');
+	// 	$url = m::mock('Hypercharge\V2\Url[getUrl]');
+	// 	$url->shouldReceive('getUrl')->andReturn($c->gatewayHost.'/v2');
+
+	// 	return array($factory, $url);
+	// }
+
 
 	/**
 	* mocks the network layer

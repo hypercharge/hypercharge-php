@@ -89,7 +89,7 @@ class ValidationError extends Error {
 			$nProps = count($props);
 			$this->technical_message = $nProps.' affected '.($nProps==1?'property':'properties').': '.join($props, ', ');
 		}
-		//$this->message .= ': '.$this->technical_message;
+		if(getenv('DEBUG') == '1') $this->message .= ': '.$this->technical_message;
 		return $n > 0;
 	}
 
@@ -126,6 +126,13 @@ class XmlParsingError extends Error {
 		parent::__construct($msg, "at line {$line} column {$column}");
 		$this->line = $line;
 		$this->column = $column;
+	}
+}
+
+class ResponseFormatError extends Error {
+	public $status_code = 70;
+	function __construct($msg, $data) {
+		parent::__construct($msg, print_r($data, true));
 	}
 }
 
