@@ -4,7 +4,7 @@ require_once dirname(__DIR__).'/test_helper.php';
 
 if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
 
-class RecurringSchedulerIntegrationTest extends HyperchargeTestCase {
+class SchedulerIntegrationTest extends HyperchargeTestCase {
 
 	function setUp() {
 		$this->credentials('sandbox'); //'development' 'sandbox2'
@@ -17,10 +17,12 @@ class RecurringSchedulerIntegrationTest extends HyperchargeTestCase {
 
 		$n = 0;
 		$_this = $this;
-		RecurringScheduler::each($this->channelToken, array(), function($schedule) use($_this, &$n) {
-			$_this->assertIsA($schedule, 'Hypercharge\RecurringScheduler');
+		Scheduler::each(array('page'=>1, 'per_page'=>10), function($schedule) use($_this, &$n) {
+			$n++;
+			$_this->assertIsA($schedule, 'Hypercharge\Scheduler');
+			$_this->assertEqual('DateRecurringSchedule', $schedule->type);
 		});
-		$this->assertEqual($n, 100);
+		$this->assertEqual($n, 10);
 	}
 
 }

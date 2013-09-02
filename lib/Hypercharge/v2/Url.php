@@ -15,7 +15,7 @@ class Url implements \Hypercharge\IUrl {
 	/**
 	* @param string $mode \Hypercharge\Config::ENV_LIVE or ::ENV_SANDBOX
 	* @param string|array $action e.g. 'scheduler' or an array of string e.g. array('scheduler', '<UNIQUE_ID>', 'transactions')
-	* @param array $params GET params as key-value hash e.g. array('page'=>1, 'per_page'=>30) examples see unittest
+	* @param array|object $params GET params as key-value hash e.g. array('page'=>1, 'per_page'=>30) examples see unittest
 	*/
 	function __construct($mode, $action, $params=array()) {
 		if(!\Hypercharge\Config::isValidMode($mode)) throw new \Exception('mode must be "sandbox" or "live"');
@@ -31,8 +31,15 @@ class Url implements \Hypercharge\IUrl {
 
 	public function get() {
 		$url = $this->getUrl();
+
 		$url .= '/'.(is_array($this->action) ? join($this->action, '/') : $this->action);
-		if(!empty($this->params)) $url .= '?'.http_build_query($this->params);
+
+		// php is so fu***** inconsistent empty($emptyObject) will return true :-|
+		// you always have to fiddle around. php eats your time.
+		$params = is_object($this->params) ? get_object_vars($this->params) : $this->params;
+
+		if(!empty($params)) $url .= '?'.http_build_query($params);
+
 		return $url;
 	}
 }

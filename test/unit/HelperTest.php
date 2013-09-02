@@ -108,6 +108,19 @@ class HelperTest extends \UnitTestCase {
 		$this->assertPattern('/^foo-bar---[a-f0-9]{13}$/', Helper::appendRandomId('foo-bar'));
 	}
 
+	function testAssignWithObject() {
+		$data = new \stdClass();
+		$data->field_name = 'value';
+		$o = new SerializableImpl($data);
+		$this->assertEqual('value', $o->field_name);
+	}
+
+	function testAssignWithIntThrows() {
+		$this->expectException('Hypercharge\Errors\ArgumentError');
+		new SerializableImpl(7777);
+	}
+
+
 	function testExtractRandomIdWithDefaultDivider() {
 		$o = Helper::extractRandomId('foo-bar---12345677aedf');
 		$this->assertEqual('foo-bar', $o->transaction_id);
@@ -283,6 +296,11 @@ class HelperTest extends \UnitTestCase {
     $o->a->foo = 'bar';
 
     $this->assertIdentical($o, Helper::arrayToObject(array('a'=>array('foo'=>'bar'))));
+  }
+
+  function testArrayToObjectEmpty() {
+    $o = new \StdClass();
+    $this->assertIdentical($o, Helper::arrayToObject(array()));
   }
 
   function testArrayToObjectWithArray() {

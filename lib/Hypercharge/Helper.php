@@ -26,8 +26,18 @@ class Helper {
 		throw new Errors\ArgumentError("'request' must be an array or a $klass but was $type");
 	}
 
-	static function assign($self, $p) {
-		if(!(is_array($p) || is_object($p))) return;
+
+	static function assign($me, $p) {
+		if(is_array($p)) {
+			self::assign_array($me, $p);
+		} else if(is_object($p)) {
+			self::assign_object($me, $p);
+		} else {
+			throw new Errors\ArgumentError("'p' must be an array or object but was: ". gettype($p));
+		}
+	}
+
+	static function assign_array($me, $p) {
 		if(!self::$xmlMapping) self::$xmlMapping = new XmlMapping();
 		$xmlMapping = self::$xmlMapping;
 		foreach($p as $k=>$v) {
@@ -42,13 +52,13 @@ class Helper {
 					$v = $converter->fromXml($v);
 				}
 			}
-			$self->{$k} = $v;
+			$me->{$k} = $v;
 		}
 	}
 
-	static function assign_json($self, $p) {
+	static function assign_object($me, $p) {
 		foreach($p as $k=>$v) {
-			$self->{$k} = $v;
+			$me->{$k} = $v;
 		}
 	}
 
@@ -138,6 +148,7 @@ class Helper {
 	*/
 	static function arrayToObject($d) {
 		if(is_object($d)) return $d;
+		if(empty($d)) return new \StdClass();
 		return json_decode(json_encode($d));
 	}
 }

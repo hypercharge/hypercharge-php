@@ -14,11 +14,7 @@ class Scheduler implements Serializable {
 	// public $unique_id, $type, $amount, $currency, $active, $start_date, $end_date;
 
 	function __construct($p) {
-		if(is_array($p)) {
-			Helper::assign($this, $p);
-		} else {
-			Helper::assign_json($this, $p);
-		}
+		Helper::assign($this, $p);
 	}
 
 	/**
@@ -83,7 +79,9 @@ class Scheduler implements Serializable {
 
 	/**
 	* create a Scheduler for a recurreable Transaction (payment_transaction_unique_id)
-	* @param array $data key-value-Hash, the Scheduler data e.g. array('payment_transaction_unique_id'=>'e1420438c52b4cb3a03a14a7e4fc16e1', 'interval'=>'monthly', 'start_date'=>'2014-03-28', 'amount' => 3900)
+	* $data e.g. array('payment_transaction_unique_id'=>'e1420438c52b4cb3a03a14a7e4fc16e1', 'interval'=>'monthly', 'start_date'=>'2014-03-28', 'amount' => 3900)
+	* @see hypercharge-schema scheduler_create.json for details
+	* @param array $data key-value-Hash, the Scheduler fields to update
 	* @return Hypercharge\Scheduler
 	*/
 	static function create($data) {

@@ -139,20 +139,24 @@ class ResponseFormatError extends Error {
 /**
 * @protected
 * Factory function for creating Error Object from error in Hypercharge XML API response
-* @param array $response parsed hypercharge XML API response containing fields {code, message, technical_message}
+* @param array|object $response parsed hypercharge XML API response containing fields {code, message, technical_message}
 * @return 'Hypercharge\Errors\Error' and subclasses if field 'code' given in $response. Returns null if no 'code' given.
 */
 function errorFromResponseHash($response) {
-	$code = @$response['code'];
+
+	$code = is_object($response) ? @$response->code : @$response['code'];
 	if($code === null) return null;
+
+	$msg      = is_object($response) ? @$response->message           : @$response['message'];
+	$tech_msg = is_object($response) ? @$response->technical_message : @$response['technical_message'];
 
 	$klass = ERROR_MAPPING::get($code);
 	if($klass) {
 		$klass = 'Hypercharge\Errors\\'.$klass;
-		return new $klass(@$response['message'], @$response['technical_message']);
+		return new $klass($msg, $tech_msg);
 	}
 	// error not in mapping
-	$error = new Error(@$response['message'], @$response['technical_message']);
+	$error = new Error($msg, $tech_msg);
 	$error->status_code = (int) $code;
 	return $error;
 }

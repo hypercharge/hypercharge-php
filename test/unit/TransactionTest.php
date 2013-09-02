@@ -418,5 +418,14 @@ class TransactionTest extends HyperchargeTestCase {
 		$diff = array_diff(TransactionRequest::getAllowedTypes(), $methods);
 		$this->assertEqual(array(), $diff, '%s diff: '. print_r($diff, true));
 	}
+
+	function testConstructorLoadsJsonResponse() {
+		$response = json_decode(JsonSchemaFixture::response('scheduled_transactions_one.json'));
+		$this->assertIsA($response->entries[0], 'stdClass');
+		$trx = new Transaction($response->entries[0]);
+		$this->assertIdentical(500, $trx->amount);
+		$this->assertIdentical('USD', $trx->currency);
+		$this->assertEqual('3ba2d77ab04f773c0a47bd1081ac50be', $trx->unique_id);
+	}
 }
 

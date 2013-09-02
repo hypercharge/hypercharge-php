@@ -131,12 +131,22 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	* @return Mockery of Hypercharge\Curl
 	*/
 	function curlMock($times=1) {
-		$curl = m::mock('Hypercharge\Curl');
+		$curl = m::mock('curl');
 		$factory = m::mock('Hypercharge\Factory[createHttpsClient]');
 		$factory->shouldReceive('createHttpsClient')->times($times)->with('the user', 'the passw')->andReturn($curl);
 		Config::setFactory($factory);
 		Config::set('the user', 'the passw', Config::ENV_SANDBOX);
 		Config::setIdSeparator(false);
 		return $curl;
+	}
+
+	function expect_Curl_jsonRequest() {
+		$curl = m::mock('Hypercharge\Curl[jsonRequest][close]', array(Config::getUser(), Config::getPassword()));
+		$curl->shouldReceive('close');
+
+		$factory = m::mock('Hypercharge\Factory[createHttpsClient]');
+		$factory->shouldReceive('createHttpsClient')->andReturn($curl);
+		Config::setFactory($factory);
+		return $curl->shouldReceive('jsonRequest');
 	}
 }

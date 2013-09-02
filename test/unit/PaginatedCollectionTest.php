@@ -51,4 +51,34 @@ class PaginatedCollectionTest extends \UnitTestCase {
 		$this->assertEqual(3, $c->getPagesCount());
 	}
 
+	function testConstructYieldsWithObject() {
+		$res = json_decode(JsonSchemaFixture::response('scheduler_page_2.json'));
+		$this->assertIsA($res, 'StdClass');
+		$c = new PaginatedCollection($res, function($entry) {
+			return new Transaction($entry);
+		});
+		$this->assertIdentical(10, $c->getTotalCount());
+		$this->assertIdentical( 2, $c->getPage());
+		$this->assertIdentical( 2, $c->getPagesCount());
+		$this->assertIdentical( 7, $c->getPerPage());
+		$this->assertIdentical(3, count($c->getEntries()));
+
+		$uids = array();
+		foreach($c as $trx) {
+			$uids[] = $trx->unique_id;
+			$this->assertIsA($trx, 'Hypercharge\Transaction');
+			$this->assertIsA($trx->amount, 'int');
+			$this->assertIsA($trx->active, 'boolean');
+		}
+
+		$this->assertEqual(
+			array(
+				'b39cf4adcdea97eb55903eab47518272'
+				,'912f9a230e6f5166f2708616cf7ee805'
+				,'c14bb3479c669ecd5393ba700a01392b'
+			)
+			, $uids
+		);
+	}
+
 }

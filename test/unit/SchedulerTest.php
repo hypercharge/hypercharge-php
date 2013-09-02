@@ -41,15 +41,6 @@ class SchedulerTest extends HyperchargeTestCase {
 		return json_decode(JsonSchemaFixture::response($responseFixture));
 	}
 
-	function expect_Curl_jsonRequest() {
-		$curl = m::mock("Hypercharge\Curl[jsonRequest]", array('sandbox', 'scheduler'));
-
-		$factory = m::mock('Hypercharge\Factory[createHttpsClient]');
-		$factory->shouldReceive('createHttpsClient')->andReturn($curl);
-		Config::setFactory($factory);
-		return $curl->shouldReceive('jsonRequest');
-	}
-
 	function testEachThrowsIfWrongType() {
 		$this->expectException('Hypercharge\Errors\ResponseFormatError');
 		$response = $this->response('scheduler_empty_result.json');
