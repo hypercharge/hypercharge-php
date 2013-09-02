@@ -22,22 +22,9 @@ class Scheduler implements Serializable {
 	* @return Hypercharge\PaginatedCollection filled with instances of Hypercharge\Scheduler
 	*/
 	static function page($params = array()) {
-		JsonSchemaValidator::validate('scheduler_index', $params);
-		$factory = Config::getFactory();
-		$url      = $factory->createUrl('scheduler', $params);
-		$response = $factory->createHttpsClient()->jsonGet($url);
+		$response = self::index($params);
 
-		if($response->type != 'PaginatedCollection') {
-			throw new Errors\ResponseFormatError("'type' expected to be PaginatedCollection", $response);
-		}
-		if($response->entries_base_type != 'RecurringSchedule') {
-			throw new Errors\ResponseFormatError("'entries_base_type' expected to be RecurringSchedule", $response);
-		}
-		$page = new PaginatedCollection($response->current_page, $response->per_page, $response->total_entries);
-		foreach($response->entries as $e) {
-			$page->push(new Scheduler($e));
-		}
-		return $page;
+		return new PaginatedCollection($response, function($e) { return new Scheduler($e); });
 	}
 
 	/**
@@ -46,7 +33,21 @@ class Scheduler implements Serializable {
 	* @return void
 	*/
 	static function each($params, $callback) {
-		JsonSchemaValidator::validate('scheduler_index', $params);
+		$response = self::index($params);
+
+		foreach($response->entries as $e) {
+			$callback(new Scheduler($e));
+		}
+	}
+
+	/**
+	* DO NOT USE, PRIVATE METHOD! must be public for unittests.
+	* @param array|object $params
+	* @return object response
+	*/
+	static function index($params) {
+		JsonSchema::validate('scheduler_index', $params);
+
 		$factory = Config::getFactory();
 		$url      = $factory->createUrl('scheduler', $params);
 		$response = $factory->createHttpsClient()->jsonGet($url);
@@ -57,10 +58,7 @@ class Scheduler implements Serializable {
 		if($response->entries_base_type != 'RecurringSchedule') {
 			throw new Errors\ResponseFormatError("'entries_base_type' expected to be RecurringSchedule", $response);
 		}
-
-		foreach($response->entries as $e) {
-			$callback(new Scheduler($e));
-		}
+		return $response;
 	}
 
 	/**
@@ -85,9 +83,7 @@ class Scheduler implements Serializable {
 	* @return Hypercharge\Scheduler
 	*/
 	static function create($data) {
-		$data = Helper::arrayToObject($data);
-		$errors = JsonSchemaValidator::validate('scheduler_create', $data);
-		if(!empty($errors)) throw new Errors\ValidationError($errors);
+		JsonSchema::validate('scheduler_create', $data);
 
 		$factory = Config::getFactory();
 		$url      = $factory->createUrl(array('scheduler'));
@@ -103,9 +99,7 @@ class Scheduler implements Serializable {
 	*/
 	static function update($uid, $data) {
 		Helper::validateUniqueId($uid);
-		$data = Helper::arrayToObject($data);
-		$errors = JsonSchemaValidator::validate('scheduler_update', $data);
-		if(!empty($errors)) throw new Errors\ValidationError($errors);
+		JsonSchema::validate('scheduler_update', $data);
 
 		$factory = Config::getFactory();
 		$url      = $factory->createUrl(array('scheduler', $uid));

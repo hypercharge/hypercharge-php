@@ -30,6 +30,7 @@ class ArgumentError extends Error {
 }
 
 /**
+* local validation on your mashine - in contrary to remote errors from hypercharge gateway (e.g. InputDataInvalidError).
 * wraps json schema errors
 */
 class ValidationError extends Error {
@@ -147,8 +148,8 @@ function errorFromResponseHash($response) {
 	$code = is_object($response) ? @$response->code : @$response['code'];
 	if($code === null) return null;
 
-	$msg      = is_object($response) ? @$response->message           : @$response['message'];
-	$tech_msg = is_object($response) ? @$response->technical_message : @$response['technical_message'];
+	$msg      = is_object($response) ? @$response->user_message : @$response['message'];
+	$tech_msg = is_object($response) ? @$response->message      : @$response['technical_message'];
 
 	$klass = ERROR_MAPPING::get($code);
 	if($klass) {

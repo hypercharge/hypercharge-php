@@ -41,7 +41,15 @@ class SchedulerTest extends HyperchargeTestCase {
 		return json_decode(JsonSchemaFixture::response($responseFixture));
 	}
 
-	function testEachThrowsIfWrongType() {
+	function testIndexThrowsIfInvalidParams() {
+		$this->expectException('Hypercharge\Errors\ValidationError');
+
+		$this->expect_Curl_jsonRequest()->never();
+
+		Scheduler::index(array('wrong_field'=>'foo'));
+	}
+
+	function testIndexThrowsIfWrongType() {
 		$this->expectException('Hypercharge\Errors\ResponseFormatError');
 		$response = $this->response('scheduler_empty_result.json');
 		$response->type = 'WrongType';
@@ -50,16 +58,10 @@ class SchedulerTest extends HyperchargeTestCase {
 			->with('GET', 'https://test.hypercharge.net/v2/scheduler')
 			->andReturn($response);
 
-		$_this = $this;
-
-		$cp = function($scheduler) use($_this) {
-			$_this->fail('callback should not be called!');
-		};
-
-		Scheduler::each(array(), $cp);
+		Scheduler::index(array());
 	}
 
-	function testEachThrowsIfWrongEntriesBaseType() {
+	function testIndexThrowsIfWrongEntriesBaseType() {
 		$this->expectException('Hypercharge\Errors\ResponseFormatError');
 		$response = $this->response('scheduler_empty_result.json');
 		$response->entries_base_type = 'WrongType';
@@ -70,11 +72,7 @@ class SchedulerTest extends HyperchargeTestCase {
 
 		$_this = $this;
 
-		$cp = function($scheduler) use($_this) {
-			$_this->fail('callback should not be called!');
-		};
-
-		Scheduler::each(array(), $cp);
+		Scheduler::index(array());
 	}
 
 	function testEachConsumesEmptyFixture() {
@@ -115,30 +113,6 @@ class SchedulerTest extends HyperchargeTestCase {
 			),
 			$uids
 		);
-	}
-
-	function testPageThrowsIfWrongType() {
-		$this->expectException('Hypercharge\Errors\ResponseFormatError');
-		$response = $this->response('scheduler_empty_result.json');
-		$response->type = 'WrongType';
-
-		$this->expect_Curl_jsonRequest()
-			->with('GET', 'https://test.hypercharge.net/v2/scheduler')
-			->andReturn($response);
-
-		Scheduler::page();
-	}
-
-	function testPageThrowsIfWrongEntriesBaseType() {
-		$this->expectException('Hypercharge\Errors\ResponseFormatError');
-		$response = $this->response('scheduler_empty_result.json');
-		$response->entries_base_type = 'WrongType';
-
-		$response = $this->expect_Curl_jsonRequest()
-			->with('GET', 'https://test.hypercharge.net/v2/scheduler')
-			->andReturn($response);
-
-		Scheduler::page();
 	}
 
 	function testPageComsumesEmptyFixture() {

@@ -13,7 +13,7 @@ class SchedulerTransactions {
 
 		$page = new PaginatedCollection($response
 			,function($entry) {
-				return new Transaction($e);
+				return new Transaction($entry);
 			}
 		);
 
@@ -30,14 +30,14 @@ class SchedulerTransactions {
 	public static function each($uid, $params, $callback) {
 		$response = self::index($uid, $params);
 
-		foreach($response->entries as $e) {
-			$callback(new Transaction($e));
+		foreach($response->entries as $entry) {
+			$callback(new Transaction($entry));
 		}
 	}
 
 
 	/**
-	* DO NOT USE, PRIVATE METHOD! only public for unittests
+	* DO NOT USE, PRIVATE METHOD! must be public for unittests
 	* @param string $uid scheduler.unique_id
 	* @param array $params hash keys (all optional): page, per_page
 	* @return Hypercharge\RecurringScheduler
@@ -45,11 +45,8 @@ class SchedulerTransactions {
 	static function index($uid, $params = array()) {
 		Helper::validateUniqueId($uid);
 
-		$params = Helper::arrayToObject($params);
-		$error = JsonSchemaValidator::validate('scheduler_transactions_index', $params);
-		if(!empty($error)) {
-			throw new Errors\ValidationError($error);
-		}
+		JsonSchema::validate('scheduler_transactions_index', $params);
+
 		$factory = Config::getFactory();
 		$url      = $factory->createUrl(array('scheduler', $uid, 'transactions'), $params);
 		$response = $factory->createHttpsClient()->jsonGet($url);

@@ -39,6 +39,19 @@ class CurlTest extends HyperchargeTestCase {
 		}
 	}
 
+	function testJsonGetToInValidHostShouldThrow() {
+		$this->credentials('sandbox');
+		try {
+			$curl = new Curl($this->credentials->user, $this->credentials->password);
+			$curl->jsonRequest('GET', 'http://www.wrong-hostname.de/foo/bar');
+		}	catch(Errors\NetworkError $exe)	{
+			$this->assertEqual(10, $exe->status_code);
+			$this->assertPattern('/^'.preg_quote('Could not resolve host: www.wrong-hostname.de').'/', $exe->technical_message);
+			return;
+		}
+		$this->fail('expected NetworkError with ');
+	}
+
 	function testJsonGetToInValidUrlShouldThrow() {
 		$this->credentials('sandbox');
 		try {
@@ -49,5 +62,42 @@ class CurlTest extends HyperchargeTestCase {
 			return;
 		}
 		$this->fail('expected NetworkError with 404');
+	}
+
+	function testJsonGetUnauthorizedShouldThrow() {
+		$this->credentials('sandbox');
+		try {
+			$curl = new Curl('user', 'password');
+			$curl->jsonGet(new v2\Url('sandbox', 'scheduler/123455668798797'));
+		}	catch(Errors\NetworkError $exe)	{
+			$this->assertEqual('The requested URL returned error: 401', $exe->technical_message);
+			return;
+		}
+		$this->fail('expected NetworkError with 401');
+	}
+
+	function testHandleErrorSilentIfCodeLt400() {
+		$curl = new Curl('user', 'passw');
+		$curl->handleError('http://url', 200, '', null, array());
+		$curl->handleError('http://url', 300, '', null, array());
+		$curl->handleError('http://url', 303, '', null, array());
+	}
+
+	function testHandleError400() {
+		$this->expectException('Hypercharge\Errors\InputDataInvalidError');
+		$curl = new Curl('user', 'passw');
+		$curl->handleError('http://url', 400, JsonSchemaFixture::response('scheduler_error.json'), null, array());
+	}
+
+	function testHandleError401() {
+		$this->expectException('Hypercharge\Errors\NetworkError');
+		$curl = new Curl('user', 'passw');
+		$curl->handleError('http://url', 401, '', null, array());
+	}
+
+	function testHandleError500() {
+		$this->expectException('Hypercharge\Errors\NetworkError');
+		$curl = new Curl('user', 'passw');
+		$curl->handleError('http://url', 500, '', null, array());
 	}
 }

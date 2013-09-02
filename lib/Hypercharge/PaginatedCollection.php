@@ -27,9 +27,7 @@ class PaginatedCollection implements \Iterator {
 			if(is_a($per_page, 'Closure')) {
 				foreach($page->entries as $entry) {
 					// yield $per_page as callback
-					$e = new Transaction($entry); // $per_page($entry);
-					// if($e === null) continue;
-					$this->entries[] = $e;
+					$this->entries[] = $per_page($entry);
 				}
 			}
 

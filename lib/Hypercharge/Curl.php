@@ -141,6 +141,12 @@ class Curl implements IHttpsClient {
 		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
 		// $header = array('X-HTTP-Method-Override: '.$method);
 
+
+		// otherwhise curl_exec() returns no body in case of a 400
+		curl_setopt($this->ch, CURLOPT_FAILONERROR, false);
+		//curl_setopt($this->ch, CURLOPT_HTTP200ALIASES, array(400));
+		//curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 0);
+
 		$header = array();
 		if($json !== null) {
 			curl_setopt($this->ch, CURLOPT_POSTFIELDS, $json);
@@ -153,26 +159,41 @@ class Curl implements IHttpsClient {
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 
 		$response_string = curl_exec($this->ch);
+		// php quirks
+		if($response_string === ' ') $response_string = '';
 
-		//check for transport errors
-		if(curl_errno($this->ch) != 0) {
-			$exe = null;
-			$this->logError(curl_error($this->ch).' '.print_r(curl_getinfo($this->ch), true));
-			if(curl_errno($this->ch) == 400 && !empty($response_string)) {
-				$errorHash = json_decode($response_string);
-				if($errorHash) $exe = Errors\errorFromResponseHash($errorHash);
-			}
-			if(!$exe) {
-				$exe = new Errors\NetworkError($url, curl_error($this->ch), print_r(curl_getinfo($this->ch), true));
-			}
-			throw $exe;
-		}
-		$this->debug('response: '. $response_string);
+		$status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
+		$this->debug($status.' response: '. (empty($response_string)?'--EMPTY--':$response_string));
+
+		$this->handleError(
+			$url
+			,$status
+			,(string)$response_string
+			,curl_error($this->ch)
+			,curl_getinfo($this->ch)
+		);
 
 		if(!empty($response_string)) {
 			return json_decode($response_string);
 		}
 	}
+
+	/**
+	* private
+	* @throws Hypercharge\Errors\Error
+	*/
+	function handleError($url, $status, $response, $curlError, $curlInfo) {
+		if(200 <= $status && $status < 400) return;
+
+		if(empty($curlError)) $curlError = "The requested URL returned error: ".$status;
+		$this->logError($curlError.' '.print_r($curlInfo, true));
+		if($status == 400 && !empty($response)) {
+			$data = json_decode($response);
+			if($data && @$data->error) throw Errors\errorFromResponseHash($data->error);
+		}
+		throw new Errors\NetworkError($url, $curlError.(!empty($response)?"\n".$response:''), print_r($curlInfo, true));
+	}
+
 
 	function debug($str) {
 		Config::getLogger()->debug(Helper::stripCc($str));

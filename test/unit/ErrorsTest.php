@@ -156,4 +156,25 @@ class ErrorsTest extends \UnitTestCase {
 		$this->assertEqual($e->line, 20);
 		$this->assertEqual($e->column, 7);
 	}
+
+	function testJsonResponseInputDataInvalidError() {
+		$data = json_decode(\Hypercharge\JsonSchemaFixture::response('scheduler_error.json'));
+		$this->assertIsA($data, 'stdClass');
+		$this->assertIdentical(340, $data->error->code);
+		$e = errorFromResponseHash($data->error);
+		$this->assertIsa($e, 'Hypercharge\Errors\InputDataInvalidError');
+		$this->assertEqual('Please check input data for errors!', $e->message);
+		$this->assertEqual("Validation failed: Amount InputDataInvalidError: 'recurring_schedule[amount]' is invalid", $e->technical_message);
+	}
+
+	function testJsonResponseWorkflowError() {
+		$data = json_decode(\Hypercharge\JsonSchemaFixture::response('scheduler_workflow_error.json'));
+		$this->assertIsA($data, 'stdClass');
+		$this->assertIdentical(400, $data->error->code);
+		$e = errorFromResponseHash($data->error);
+		$this->assertIsa($e, 'Hypercharge\Errors\WorkflowError');
+		$this->assertEqual('Something went wrong, please contact support!', $e->message);
+		$this->assertEqual("transaction already has a schedule.", $e->technical_message);
+	}
+
 }
