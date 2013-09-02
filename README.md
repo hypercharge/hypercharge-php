@@ -3,8 +3,9 @@
 PHP SDK for the Hypercharge payment gateway.
 
 [![Latest Stable Version](https://poser.pugx.org/hypercharge/hypercharge-php/v/stable.png)](https://packagist.org/packages/hypercharge/hypercharge-php)
+[![Build Status](https://travis-ci.org/hypercharge/hypercharge-php.png)](https://travis-ci.org/hypercharge/hypercharge-php)
 
-tested with PHP 5.3.25 on OSX/Linux
+tested with PHP > 5.3 on OSX/Linux
 
 ## Installation
 
