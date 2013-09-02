@@ -5,6 +5,10 @@ require_once dirname(__DIR__).'/test_helper.php';
 
 class MobilePaymentRequestTest extends \UnitTestCase {
 
+  function setUp() {
+    XmlSerializer::$sort = false;
+  }
+
   function testSerialize() {
     Config::setIdSeparator(false);
 

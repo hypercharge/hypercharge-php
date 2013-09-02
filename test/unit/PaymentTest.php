@@ -8,6 +8,8 @@ class PaymentTest extends HyperchargeTestCase {
 
 	function setUp() {
 		Config::setIdSeparator(false);
+    XmlSerializer::$sort = false;
+
 		$this->curl = $curl = m::mock('Curl');
 		$factory = m::mock(new Factory());
 		$factory

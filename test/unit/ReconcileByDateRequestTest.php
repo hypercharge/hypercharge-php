@@ -7,6 +7,7 @@ class ReconcileByDateRequestTest extends HyperchargeTestCase {
 
 	function setUp() {
 		$this->serializer = new XmlSerializer(new XmlMapping());
+    XmlSerializer::$sort = false;
 	}
 
 	function testValidateDefaults() {
