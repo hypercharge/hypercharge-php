@@ -65,6 +65,7 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	function credentials($name='sandbox') {
 		$str = file_get_contents(__DIR__.'/credentials.json');
 		$this->credentials = json_decode($str)->{$name};
+		$this->credentials->name = $name;
 
 		Config::set($this->credentials->user, $this->credentials->password, Config::ENV_SANDBOX);
 
@@ -77,7 +78,7 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 		$mode = Config::getMode();
 
 		$c = $this->credentials;
-		$factory = m::mock('Hypercharge\Factory[createPaymentUrl,createTransactionUrl]');
+		$factory = m::mock('Hypercharge\Factory[createPaymentUrl,createTransactionUrl,createUrl]');
 
 		////////////
 		// Payments

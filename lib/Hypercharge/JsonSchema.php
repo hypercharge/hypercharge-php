@@ -15,7 +15,7 @@ class JsonSchema {
 	}
 
 	/**
-	* convinience method
+	* convinience method. Throws json schema validation errors as ValidationError.
 	* @param string $schemaName e.g. 'scheduler_index' - without path and sufix!
 	* @param array|object $data
 	* @return void

@@ -86,7 +86,7 @@ class Scheduler implements Serializable {
 		JsonSchema::validate('scheduler_create', $data);
 
 		$factory = Config::getFactory();
-		$url      = $factory->createUrl(array('scheduler'));
+		$url      = $factory->createUrl('scheduler');
 		$response = $factory->createHttpsClient()->jsonPost($url, $data);
 
 		return new Scheduler($response);
@@ -117,7 +117,7 @@ class Scheduler implements Serializable {
 
 		$factory = Config::getFactory();
 		$url     = $factory->createUrl(array('scheduler', $uid));
-		$factory->createHttpsClient()->delete($url);
+		$factory->createHttpsClient()->jsonDelete($url);
 	}
 
 	/**
@@ -136,6 +136,26 @@ class Scheduler implements Serializable {
 	*/
 	static function deactivate($uid) {
 		return self::update($uid, array('active'=>false));
+	}
+
+	/**
+	* returns the date when the next Transaction is scheduled for
+	* @param string $uid the scheduler.unique_id
+	* @return string date 'yyyy-mm-dd' e.g. '2014-03-28'
+	*/
+	static function next($uid) {
+		Helper::validateUniqueId($uid);
+
+		$factory = Config::getFactory();
+		$url     = $factory->createUrl(array('scheduler', $uid, 'next'));
+		$response = $factory->createHttpsClient()->jsonGet($url);
+
+		if($response === null) return;
+
+		if(!(is_object($response) && @$response->type == 'RecurringEvent' && !empty($response->due_date))) {
+			throw new Errors\ResponseFormatError("expected object type=RecurringEvent", $response);
+		}
+		return $response->due_date;
 	}
 
 }

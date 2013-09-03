@@ -4,7 +4,7 @@ namespace Hypercharge\v2;
 class Url implements \Hypercharge\IUrl {
 
 	private $mode;
-	private $action;
+	private $path;
 	private $params;
 
 	protected $urls = array(
@@ -14,14 +14,14 @@ class Url implements \Hypercharge\IUrl {
 
 	/**
 	* @param string $mode \Hypercharge\Config::ENV_LIVE or ::ENV_SANDBOX
-	* @param string|array $action e.g. 'scheduler' or an array of string e.g. array('scheduler', '<UNIQUE_ID>', 'transactions')
+	* @param string|array $path e.g. 'scheduler' or an array of string e.g. array('scheduler', '<UNIQUE_ID>', 'transactions')
 	* @param array|object $params GET params as key-value hash e.g. array('page'=>1, 'per_page'=>30) examples see unittest
 	*/
-	function __construct($mode, $action, $params=array()) {
+	function __construct($mode, $path, $params=array()) {
 		if(!\Hypercharge\Config::isValidMode($mode)) throw new \Exception('mode must be "sandbox" or "live"');
 
 		$this->mode   = $mode;
-		$this->action = $action;
+		$this->path   = $path;
 		$this->params = $params;
 	}
 
@@ -32,9 +32,9 @@ class Url implements \Hypercharge\IUrl {
 	public function get() {
 		$url = $this->getUrl();
 
-		$url .= '/'.(is_array($this->action) ? join($this->action, '/') : $this->action);
+		$url .= '/'.(is_array($this->path) ? join($this->path, '/') : $this->path);
 
-		// php is so fu***** inconsistent empty($emptyObject) will return true :-|
+		// php is so fu***** inconsistent empty($emptyObject) returns false :-|
 		// you always have to fiddle around. php eats your time.
 		$params = is_object($this->params) ? get_object_vars($this->params) : $this->params;
 

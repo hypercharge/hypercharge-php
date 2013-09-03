@@ -143,6 +143,8 @@ class Helper {
 	}
 
 	/**
+	* Converts a php array (Hash) to instance of StdClass.
+	* If $d is an object the same instance will be returned untouched.
 	* @param array|object $d
 	* @return object
 	*/

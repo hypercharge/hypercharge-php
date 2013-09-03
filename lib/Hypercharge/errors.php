@@ -30,7 +30,7 @@ class ArgumentError extends Error {
 }
 
 /**
-* local validation on your mashine - in contrary to remote errors from hypercharge gateway (e.g. InputDataInvalidError).
+* holds local validation error on your mashine - in contrary to remote errors from hypercharge gateway (e.g. InputDataInvalidError).
 * wraps json schema errors
 */
 class ValidationError extends Error {
@@ -110,11 +110,19 @@ class ValidationError extends Error {
 class NetworkError extends Error {
 	public $status_code = 10;
 	public $url;
+	public $http_status = 0;
 	public $body;
 
-	function __construct($url, $message, $body='') {
+	/**
+	* @param string $url
+	* @param int $http_status
+	* @param string $message
+	* @param string $body
+	*/
+	function __construct($url, $http_status, $message, $body='') {
 		parent::__construct('Connection to Payment Gateway failed.', $message);
 		$this->url = $url;
+		$this->http_status = $http_status;
 		$this->body = \Hypercharge\Helper::stripCc($body);
 	}
 }
@@ -138,6 +146,8 @@ class ResponseFormatError extends Error {
 }
 
 /**
+* TODO: exchange technical_message with user_message because user_message isn't containing any usefull informations and is pretty useless.
+*       Exception->message is the field printed into shell message if unhandled exception occurse and that's important when developing imho.
 * @protected
 * Factory function for creating Error Object from error in Hypercharge XML API response
 * @param array|object $response parsed hypercharge XML API response containing fields {code, message, technical_message}

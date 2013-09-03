@@ -80,7 +80,12 @@ class Curl implements IHttpsClient {
 		//check for transport errors
 		if(curl_errno($ch) != 0) {
 			$this->logError(curl_error($ch).' '.print_r(curl_getinfo($ch), true));
-			$exe = new Errors\NetworkError($url, curl_error($ch), print_r(curl_getinfo($ch), true));
+			$exe = new Errors\NetworkError(
+					$url
+					,curl_getinfo($ch, CURLINFO_HTTP_CODE)
+					,curl_error($ch)
+					,print_r(curl_getinfo($ch), true)
+			);
 			throw $exe;
 		}
 
@@ -139,13 +144,6 @@ class Curl implements IHttpsClient {
 		$this->debug($method.' '.$url);
 
 		curl_setopt($this->ch, CURLOPT_CUSTOMREQUEST, $method);
-		// $header = array('X-HTTP-Method-Override: '.$method);
-
-
-		// otherwhise curl_exec() returns no body in case of a 400
-		curl_setopt($this->ch, CURLOPT_FAILONERROR, false);
-		//curl_setopt($this->ch, CURLOPT_HTTP200ALIASES, array(400));
-		//curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, 0);
 
 		$header = array();
 		if($json !== null) {
@@ -158,9 +156,12 @@ class Curl implements IHttpsClient {
 
 		curl_setopt($this->ch, CURLOPT_URL, $url);
 
+		// otherwhise curl_exec() returns no body in case of a 400
+		curl_setopt($this->ch, CURLOPT_FAILONERROR, false);
+
 		$response_string = curl_exec($this->ch);
-		// php quirks
-		if($response_string === ' ') $response_string = '';
+		// response is " " sometimes
+		$response_string = trim($response_string);
 
 		$status = curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 		$this->debug($status.' response: '. (empty($response_string)?'--EMPTY--':$response_string));
@@ -172,7 +173,9 @@ class Curl implements IHttpsClient {
 			,curl_error($this->ch)
 			,curl_getinfo($this->ch)
 		);
-
+		if($response_string === 'null') {
+			return null;
+		}
 		if(!empty($response_string)) {
 			return json_decode($response_string);
 		}
@@ -191,7 +194,12 @@ class Curl implements IHttpsClient {
 			$data = json_decode($response);
 			if($data && @$data->error) throw Errors\errorFromResponseHash($data->error);
 		}
-		throw new Errors\NetworkError($url, $curlError.(!empty($response)?"\n".$response:''), print_r($curlInfo, true));
+		throw new Errors\NetworkError(
+				$url
+				,$status
+				,$curlError.(!empty($response)?"\n".$response:'')
+				,print_r($curlInfo, true)
+		);
 	}
 
 

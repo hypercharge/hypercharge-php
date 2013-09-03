@@ -8,8 +8,14 @@ class CurlTest extends HyperchargeTestCase {
 
 	function testPostToInvalidShouldThrowException() {
 		$curl = new Curl('user', 'passw');
-		$this->expectException(new Errors\NetworkError('http://localhost/eine/falsche/url', 'The requested URL returned error: 404'));
-		$curl->xmlPost('http://localhost/eine/falsche/url', '<data />');
+		try {
+			$curl->xmlPost('http://localhost/eine/falsche/url', '<data />');
+		} catch(Errors\NetworkError $exe) {
+			$this->assertEqual('http://localhost/eine/falsche/url', $exe->url);
+			$this->assertIdentical(404, $exe->http_status);
+			$this->assertEqual('The requested URL returned error: 404', $exe->technical_message);
+			$this->assertPattern('/^Array\n\(\n/', $exe->body);
+		}
 	}
 
 	function testPostToValidUrlShouldReturnBody() {
@@ -17,7 +23,7 @@ class CurlTest extends HyperchargeTestCase {
 			$curl = new Curl('user', 'passw');
 			$response = $curl->xmlPost('https://test.hypercharge.net/', '');
 			//'Sat Apr 27 09:41:53 UTC 2013'
-			$this->assertPattern('/^\w\w\w \w\w\w \d\d? \d\d:\d\d:\d\d UTC \d\d\d\d$/', $response);
+			$this->assertPattern('/^\w\w\w \w\w\w \d\d? [0-2]\d:[0-5]\d:[0-5]\d UTC 20\d\d$/', $response);
 		}	catch(\Exception $exe)	{
 			$this->fail($exe->getMessage());
 		}

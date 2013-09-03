@@ -277,4 +277,61 @@ class SchedulerTest extends HyperchargeTestCase {
 
 		$scheduler = Scheduler::deactivate('wrong');
 	}
+
+	function testDelete() {
+		$this->expect_Curl_jsonRequest()
+			->with('DELETE', 'https://test.hypercharge.net/v2/scheduler/e1420438c52b4cb3a03a14a7e4fc16e1');
+
+		Scheduler::delete('e1420438c52b4cb3a03a14a7e4fc16e1');
+	}
+
+	function testNextInvalidUidThrows() {
+		$this->expectException('Hypercharge\Errors\ValidationError');
+
+		$this->expect_Curl_jsonRequest()->never();
+
+		Scheduler::next('wrong_unique_id');
+	}
+
+	function testNextResponseNull() {
+		$this->expect_Curl_jsonRequest()
+			->with('GET', 'https://test.hypercharge.net/v2/scheduler/e1420438c52b4cb3a03a14a7e4fc16e1/next')
+			->andReturn(null);
+
+		$never = Scheduler::next('e1420438c52b4cb3a03a14a7e4fc16e1');
+		$this->assertIdentical(null, $never);
+	}
+
+	function testNextResponseWrongFormatThrows() {
+		$this->expectException('Hypercharge\Errors\ResponseFormatError');
+
+		$this->expect_Curl_jsonRequest()
+			->with('GET', 'https://test.hypercharge.net/v2/scheduler/e1420438c52b4cb3a03a14a7e4fc16e1/next')
+			->andReturn($this->request('scheduler_update.json'));
+
+		Scheduler::next('e1420438c52b4cb3a03a14a7e4fc16e1');
+	}
+
+	function testNextResponseNoDueDateThrows() {
+		$this->expectException('Hypercharge\Errors\ResponseFormatError');
+		$response = $this->response('scheduler_next.json');
+		unset($response->due_date);
+
+		$this->expect_Curl_jsonRequest()
+			->with('GET', 'https://test.hypercharge.net/v2/scheduler/e1420438c52b4cb3a03a14a7e4fc16e1/next')
+			->andReturn($response);
+
+		Scheduler::next('e1420438c52b4cb3a03a14a7e4fc16e1');
+	}
+
+	function testNext() {
+		$response = $this->response('scheduler_next.json');
+
+		$this->expect_Curl_jsonRequest()
+			->with('GET', 'https://test.hypercharge.net/v2/scheduler/e1420438c52b4cb3a03a14a7e4fc16e1/next')
+			->andReturn($response);
+
+		$next = Scheduler::next('e1420438c52b4cb3a03a14a7e4fc16e1');
+		$this->assertEqual('2014-06-02', $next);
+	}
 }
