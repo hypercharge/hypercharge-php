@@ -9,12 +9,15 @@ if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
 class SchedulerIntegrationTest extends HyperchargeTestCase {
 
 	function setUp() {
-		$this->credentials('development'); //'development' 'sandbox'
-		// echo "\n";
-		// print_r($this->credentials);
+		$this->credentials();
+
 		Config::setIdSeparator('---');
 
 		$this->channel_token = $this->credentials->channelTokens->EUR;
+	}
+
+	function tearDown() {
+		parent::tearDown();
 	}
 
 	function transactionFixture($fixtureName) {
@@ -56,7 +59,11 @@ class SchedulerIntegrationTest extends HyperchargeTestCase {
 		}
 	}
 
+
+
 	function testEach() {
+		$this->mockV2Url('scheduler', array('page'=>1, 'per_page'=>10));
+
 		$n = 0;
 		$_this = $this;
 		Scheduler::each(array('page'=>1, 'per_page'=>10), function($scheduler) use($_this, &$n) {
@@ -212,5 +219,26 @@ class SchedulerIntegrationTest extends HyperchargeTestCase {
 		$date = Scheduler::next($uid);
 		$this->assertIdentical(null, $date);
 	}
+
+	function testTransactionsPage() {
+
+
+	}
+
+	function testTransactionsPageThrows() {
+
+
+	}
+
+	function testTransactionsEach() {
+
+
+	}
+
+	function testTransactionsEachThrows() {
+
+
+	}
+
 
  }

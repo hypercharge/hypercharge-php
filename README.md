@@ -364,8 +364,37 @@ composer update --dev
 ### Unit Tests
 Run the unit tests
 ```sh
-php test/all_tests.php
+php test/all.php
 ```
+
+### Remote Tests
+
+The remote tests make https calls to the hypercharge sandbox (testing gateway).
+
+At first you have to setup your login and channel tokens:
+
+Copy `test/credentials.json.example` to `test/credentials.json`.
+You received credentials when hypercharge created your test-acount.
+Add the credentials to `test/credentials.json`. See values marked with `TODO`.
+
+Run the remote tests
+```sh
+php test/remote.php
+```
+this will take about a minute.
+
+You can use environment variables:
+```sh
+DEBUG=1 CREDENTIALS=development php test/remote.php
+```
+
+ * `DEBUG=1` verbose output.
+ * `CREDENTIALS=development` switch to "development" credentials. Default is `sandbox`
+
+Note:
+
+ * `test/credentials.json` should never be checkt into your code repository. e.g. add it to `.gitignore`
+ * Do not run the remote tests on your live credentials.
 
 ## Warranty
 

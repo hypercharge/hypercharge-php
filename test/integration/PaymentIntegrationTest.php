@@ -8,9 +8,8 @@ if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
 class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function setUp() {
-		$this->credentials('sandbox'); //'development'; 'sandbox';
-		// echo "\n";
-		// print_r($this->credentials);
+		$this->credentials();
+
 		Config::setIdSeparator('---');
 
 		$this->expected_payment_methods = array(
@@ -36,7 +35,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 
 	function testWrongPwd() {
-		$this->expectException(new Errors\NetworkError($this->credentials->paymentHost.'/payment', 'The requested URL returned error: 401'));
+		$this->expectException(new Errors\NetworkError($this->credentials->paymentHost.'/payment', 401, 'The requested URL returned error: 401'));
 		Config::set($this->credentials->user, 'wrong password', Config::ENV_SANDBOX);
 		$data = $this->fixture('wpf_payment_request_simple.json');
 		$payment = Payment::wpf($data);

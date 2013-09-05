@@ -189,7 +189,7 @@ class Curl implements IHttpsClient {
 		if(200 <= $status && $status < 400) return;
 
 		if(empty($curlError)) $curlError = "The requested URL returned error: ".$status;
-		$this->logError($curlError.' '.print_r($curlInfo, true));
+		$this->logError($curlError."\n".print_r($curlInfo, true));
 		if($status == 400 && !empty($response)) {
 			$data = json_decode($response);
 			if($data && @$data->error) throw Errors\errorFromResponseHash($data->error);

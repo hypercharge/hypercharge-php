@@ -56,15 +56,30 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	}
 
 	/**
+	* you can set by using shell environment variable e.g. CREDENTIALS=development php test/remote.php
 	* sets $this->credentials to the part ($name) of credentials.json
 	* you should use it in test setUp()
 	* please do not confuse credentials name with Config:ENV_*
 	* @param string $name  see first level in /test/credentials.json
 	* @return object  { user:String, password:String }
 	*/
-	function credentials($name='sandbox') {
-		$str = file_get_contents(__DIR__.'/credentials.json');
-		$this->credentials = json_decode($str)->{$name};
+	function credentials($name=null) {
+		if($name === null) {
+			$name = getenv('CREDENTIALS');
+		}
+		if(empty($name)) {
+			$name = 'sandbox';
+		}
+		$file = __DIR__.'/credentials.json';
+		$str = file_get_contents($file);
+		$all = json_decode($str);
+		if(!$all) {
+			throw new \Exception("could not load json data from $file\n");
+		}
+		if(!isset($all->{$name})) {
+			throw new \Exception("no credentials '$name' in $file\npossible values are: ".implode(', ',array_keys(get_object_vars($all))));
+		}
+		$this->credentials = $all->{$name};
 		$this->credentials->name = $name;
 
 		Config::set($this->credentials->user, $this->credentials->password, Config::ENV_SANDBOX);

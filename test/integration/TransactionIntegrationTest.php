@@ -7,9 +7,8 @@ if(getenv('DEBUG') == '1') Config::setLogger(new StdoutLogger());
 class TransactionIntegrationTest extends HyperchargeTestCase {
 
 	function setUp() {
-		$this->credentials('sandbox'); //'development' 'sandbox'
-		// echo "\n";
-		// print_r($this->credentials);
+		$this->credentials();
+
 		Config::setIdSeparator('---');
 		$this->channelToken = $this->credentials->channelTokens->USD;
 	}
@@ -65,7 +64,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testSale() {
 		$data = $this->fixture('sale.json');
 		$trx = Transaction::sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
@@ -82,7 +81,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('sale.json');
 		$req = new TransactionRequest($data);
 		$trx = Transaction::sale($this->channelToken, $req);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
@@ -131,7 +130,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testAutorize() {
 		$data = $this->fixture('authorize.json');
 		$trx = Transaction::authorize($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'authorize');
@@ -145,7 +144,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('capture.json');
 		$data['reference_id'] = $authorize->unique_id;
 		$trx = Transaction::capture($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'capture');
@@ -173,7 +172,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('refund.json');
 		$data['reference_id'] = $sale->unique_id;
 		$trx = Transaction::refund($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'refund');
@@ -204,7 +203,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('void.json');
 		$data['reference_id'] = $sale->unique_id;
 		$trx = Transaction::void($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'void');
@@ -219,7 +218,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 			$this->fail('TODO maik! does not work on testgate! #1604 and #1632');
 			return;
 		}
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'referenced_fund_transfer');
@@ -228,7 +227,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testAutorize3dAsync() {
 	 	$data = $this->fixture('authorize3d_async.json');
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
-	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
+	 	$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 	 	$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 	 	$this->assertEqual($trx->transaction_type, 'authorize3d');
@@ -242,7 +241,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testAutorize3dSync() {
 	 	$data = $this->fixture('authorize3d_sync.json');
 	 	$trx = Transaction::authorize3d($this->channelToken, $data);
-	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
+	 	$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		if($trx->isPendingAsync()) {
 			$this->fail('TODO maik! created trx should be sync but is async! #1605');
@@ -260,7 +259,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testSale3dAsync() {
 	 	$data = $this->fixture('sale3d_async.json');
 	 	$trx = Transaction::sale3d($this->channelToken, $data);
-	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
+	 	$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 	 	$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 	 	$this->assertEqual($trx->transaction_type, 'sale3d');
@@ -274,7 +273,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testSale3dSync() {
 	 	$data = $this->fixture('sale3d_sync.json');
 	 	$trx = Transaction::sale3d($this->channelToken, $data);
-	 	$this->assertNull($trx->error, "error %s , error:".$trx->error);
+	 	$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 	 	$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 	 	if($trx->isPendingAsync()) {
 	 		$this->fail('TODO maik! created trx should be sync but is async! #1606 and #1648 ');
@@ -292,7 +291,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testInitRecurringSale() {
 		$data = $this->fixture('init_recurring_sale.json');
 		$trx = Transaction::init_recurring_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'init_recurring_sale');
@@ -307,7 +306,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testInitRecurringAuthorize() {
 		$data = $this->fixture('init_recurring_authorize.json');
 		$trx = Transaction::init_recurring_authorize($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'init_recurring_authorize');
@@ -324,7 +323,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('recurring_sale.json');
 		$data['reference_id'] = $sale->unique_id;
 		$trx = Transaction::recurring_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s');
 		$this->assertEqual($trx->transaction_type, 'recurring_sale');
@@ -340,7 +339,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('pay_pal.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::pay_pal($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 		$this->assertEqual($trx->transaction_type, 'pay_pal');
@@ -357,7 +356,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('debit_sale.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::debit_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 		$this->assertEqual($trx->transaction_type, 'debit_sale');
@@ -371,7 +370,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('init_recurring_debit_sale.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::init_recurring_debit_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 		$this->assertEqual($trx->transaction_type, 'init_recurring_debit_sale');
@@ -386,7 +385,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('giro_pay_sale.json');
 		$data['currency'] = 'EUR';
 		$trx = Transaction::giro_pay_sale($this->credentials->channelTokens->EUR, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
 		$this->assertEqual($trx->transaction_type, 'giro_pay_sale');
@@ -400,7 +399,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('direct_pay24_sale.json');
 		$data['currency'] = 'EUR';
 		$trx = Transaction::direct_pay24_sale($this->credentials->channelTokens->EUR, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
 		$this->assertEqual($trx->transaction_type, 'direct_pay24_sale');
@@ -414,7 +413,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('ideal_sale.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::ideal_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
@@ -432,7 +431,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('purchase_on_account.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::purchase_on_account($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
@@ -450,7 +449,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('pay_in_advance.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::pay_in_advance($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
@@ -468,7 +467,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('payment_on_delivery.json');
 		$data['currency'] = 'USD';
 		$trx = Transaction::payment_on_delivery($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isApproved(), 'isApproved() %s, status: '.$trx->status);
@@ -486,7 +485,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data['currency']     = $sale->currency;
 		$data['reference_id'] = $sale->unique_id;
 		$trx = Transaction::recurring_debit_sale($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertIsA($trx, 'Hypercharge\Transaction');
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
@@ -504,7 +503,7 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = $this->fixture('pay_safe_card_sale.json');
 		$data['currency'] = 'EUR';
 		$trx = Transaction::pay_safe_card_sale($this->credentials->channelTokens->EUR, $data);
-		$this->assertNull($trx->error, "error %s , error:".$trx->error);
+		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
 		$this->assertEqual($trx->transaction_type, 'pay_safe_card_sale');
