@@ -393,7 +393,7 @@ DEBUG=1 CREDENTIALS=development php test/remote.php
 
 Note:
 
- * `test/credentials.json` should never be checkt into your code repository. e.g. add it to `.gitignore`
+ * `test/credentials.json` should not be checked into your code repository. e.g. add it to `.gitignore`
  * Do not run the remote tests on your live credentials.
 
 ## Warranty
