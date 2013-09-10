@@ -30,7 +30,8 @@ class CurlTest extends HyperchargeTestCase {
 	}
 
 	function testJsonGetToValidUrlShouldReturnBody() {
-		$this->credentials('sandbox');
+		if(!$this->credentials('sandbox')) return;
+
 		try {
 			$curl = new Curl($this->credentials->user, $this->credentials->password);
 			$response = $curl->jsonGet(new v2\Url('sandbox', 'scheduler?per_page=2'));
@@ -46,7 +47,8 @@ class CurlTest extends HyperchargeTestCase {
 	}
 
 	function testJsonGetToInValidHostShouldThrow() {
-		$this->credentials('sandbox');
+		if(!$this->credentials('sandbox')) return;
+
 		try {
 			$curl = new Curl($this->credentials->user, $this->credentials->password);
 			$curl->jsonRequest('GET', 'http://www.wrong-hostname.de/foo/bar');
@@ -59,7 +61,8 @@ class CurlTest extends HyperchargeTestCase {
 	}
 
 	function testJsonGetToInValidUrlShouldThrow() {
-		$this->credentials('sandbox');
+		if(!$this->credentials('sandbox')) return;
+
 		try {
 			$curl = new Curl($this->credentials->user, $this->credentials->password);
 			$curl->jsonGet(new v2\Url('sandbox', 'scheduler/123455668798797'));
@@ -71,7 +74,8 @@ class CurlTest extends HyperchargeTestCase {
 	}
 
 	function testJsonGetUnauthorizedShouldThrow() {
-		$this->credentials('sandbox');
+		if(!$this->credentials('sandbox')) return;
+
 		try {
 			$curl = new Curl('user', 'password');
 			$curl->jsonGet(new v2\Url('sandbox', 'scheduler/123455668798797'));

@@ -68,11 +68,17 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	* sets $this->credentials to the part ($name) of credentials.json
 	* you should use it in test setUp()
 	* please do not confuse credentials name with Config:ENV_*
+	* sets $this->credentials to object { user:String, password:String, ... }
+	*
 	* @param string $name  see first level in /test/credentials.json
-	* @return object  { user:String, password:String }
+	* @return boolean false if no remote tests possible (running in travis continuous integration server)
+	* @throws Exception
 	*/
 	function credentials($name=null) {
-		$this->skipIf(getenv('TRAVIS'), 'remote credentials not yet implemented for travis ci');
+		if(getenv('TRAVIS')) {
+			$this->skip('remote credentials not yet implemented for travis ci');
+			return false;
+		}
 
 		if($name === null) {
 			$name = getenv('CREDENTIALS');
@@ -97,6 +103,7 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 		if($name == 'development') {
 			$this->mockUrls();
 		}
+		return true;
 	}
 
 	function mockUrls() {
