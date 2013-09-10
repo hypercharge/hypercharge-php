@@ -39,6 +39,14 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	}
 
 	/**
+	* @param string $fileName e.g. "sale.json" for /vendor/hypercharge/hypercharge-schema/test/fixtures/sale.json
+	* @return mixed array for *.json, string for other
+	*/
+	function schemaNotification($fileName) {
+		return self::parseIfJson(JsonSchemaFixture::notification($fileName), $fileName);
+	}
+
+	/**
 	* @return string|array
 	*/
 	static function parseIfJson($str, $name) {

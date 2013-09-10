@@ -221,23 +221,110 @@ class SchedulerIntegrationTest extends HyperchargeTestCase {
 	}
 
 	function testTransactionsPage() {
+		$_this = $this;
+		$schedulers = Scheduler::page(array(
+			 'start_date_from'=>'2013-06-27'
+			,'start_date_to'  =>'2013-06-27'
+		));
+		$this->assertIsA($schedulers, 'Hypercharge\PaginatedCollection');
+		$this->assertEqual(9, $schedulers->getCount());
 
+		foreach($schedulers as $scheduler) {
+			$this->assertIsA($scheduler, 'Hypercharge\Scheduler');
+			$this->assertEqual(Scheduler::MONTHLY, $scheduler->interval);
 
+			$transactions = SchedulerTransactions::page($scheduler->unique_id);
+			$this->assertIsA($transactions, 'Hypercharge\PaginatedCollection');
+			// first 3 transactions are known. They become more
+			$this->assertTrue($transactions->getCount() >= 3);
+
+			foreach($transactions as $i => $trx) {
+				$this->assertIsA($trx ,'Hypercharge\Transaction');
+				$this->assertEqual(5000, $trx->amount);
+				$this->assertEqual('USD', $trx->currency);
+				$this->assertEqual('recurring_sale', $trx->transaction_type);
+				// the 3 first transactions ...
+				if($i<4) {
+					// ... are known to be approved
+					$this->assertTrue($trx->isApproved());
+					// ... and occured once per month, until august 2013, youngest first.
+					$this->assertPattern('/^2013-0'.(8-$i).'-27/', $trx->timestamp);
+				}
+			}
+		}
 	}
 
 	function testTransactionsPageThrows() {
+		try {
 
+			// some valid unique_id but not a Scheduler one
+			SchedulerTransactions::page('05c546d95938c445d037dcc7cd6aa7dd');
 
+		} catch(Errors\NetworkError $exe) {
+			$this->assertEqual(404, $exe->http_status);
+			$this->assertEqual( 10, $exe->status_code);
+			$this->assertEqual('The requested URL returned error: 404', $exe->technical_message);
+			return;
+		}
+		$this->fail('Errors\NetworkError expected!');
 	}
 
 	function testTransactionsEach() {
+		$counts = array('scheduler' => 0, 'transaction' => 0);
+		$_this = $this;
+		Scheduler::each(array(
+				 'start_date_from'=>'2013-06-27'
+				,'start_date_to'  =>'2013-06-27'
+			)
+			,function($scheduler) use ($_this, &$counts) {
+				$counts['transaction'] = 0;
 
+				$_this->assertIsA($scheduler, 'Hypercharge\Scheduler');
+				$_this->assertEqual(Scheduler::MONTHLY, $scheduler->interval);
 
+				SchedulerTransactions::each($scheduler->unique_id, array()
+					,function($trx) use($_this, &$counts) {
+						$i = $counts['transaction'];
+						$_this->assertIsA($trx ,'Hypercharge\Transaction');
+						$_this->assertEqual(5000, $trx->amount);
+						$_this->assertEqual('USD', $trx->currency);
+						$_this->assertEqual('recurring_sale', $trx->transaction_type);
+						// the 3 first transactions ...
+						if($i<4) {
+							// ... are known to be approved
+							$_this->assertTrue($trx->isApproved());
+							// ... and occured once per month, until august 2013, youngest first.
+							$_this->assertPattern('/^2013-0'.(8-$i).'-27/', $trx->timestamp);
+						}
+						$counts['transaction']++;
+					}
+				);
+				$counts['scheduler']++;
+
+				$_this->assertTrue($counts['transaction'] >= 3);
+			}
+		);
+
+		$this->assertEqual(9, $counts['scheduler']);
 	}
 
 	function testTransactionsEachThrows() {
+		try {
+			$_this = $this;
+			// some valid unique_id but not a Scheduler one
+			SchedulerTransactions::each('05c546d95938c445d037dcc7cd6aa7dd', array()
+				,function($transaction) use ($_this) {
+					$_this->fail('callback should never be called!');
+				}
+			);
 
-
+		} catch(Errors\NetworkError $exe) {
+			$this->assertEqual(404, $exe->http_status);
+			$this->assertEqual( 10, $exe->status_code);
+			$this->assertEqual('The requested URL returned error: 404', $exe->technical_message);
+			return;
+		}
+		$this->fail('Errors\NetworkError expected!');
 	}
 
 

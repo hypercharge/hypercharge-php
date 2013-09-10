@@ -362,17 +362,17 @@ class TransactionTest extends HyperchargeTestCase {
 	}
 
 	function testNotificationRoundtrip() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$apiPassword = 'bogus';
 		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
 		$notification = Transaction::notification($postData);
 		$this->assertTrue($notification->isVerified());
 		$this->assertTrue($notification->isApproved());
-		$this->assertEqual($this->fixture('transaction_notification_ack.xml'), $notification->ack());
+		$this->assertEqual($this->schemaNotification('transaction_notification_ack.xml'), $notification->ack());
 	}
 
 	function testNotificationSignatureBroken() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$apiPassword = 'wrong';
 		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
 		$notification = Transaction::notification($postData);
@@ -395,7 +395,7 @@ class TransactionTest extends HyperchargeTestCase {
 	}
 
 	function testNotificationMissingPasswordThrows() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		Config::set('username', '', Config::ENV_SANDBOX);
 		$this->assertEqual('', Config::getPassword());
 		try {
