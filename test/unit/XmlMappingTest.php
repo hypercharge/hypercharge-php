@@ -22,7 +22,7 @@ class XmlMappingTest extends UnitTestCase {
 		$this->assertEqual('Hypercharge\RiskParams', $m->getClass('risk_params'));
 		$this->assertEqual('Hypercharge\Transaction', $m->getClass('payment_transaction'));
 		$this->assertEqual('Hypercharge\MpiParams', $m->getClass('mpi_params'));
-		$this->assertEqual('Hypercharge\RecurringScheduler', $m->getClass('recurring_schedule'));
+		$this->assertEqual('Hypercharge\Scheduler', $m->getClass('recurring_schedule'));
 	}
 
 	function testGetConverter() {

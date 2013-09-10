@@ -30,6 +30,7 @@ class ArgumentError extends Error {
 }
 
 /**
+* holds local validation error on your mashine - in contrary to remote errors from hypercharge gateway (e.g. InputDataInvalidError).
 * wraps json schema errors
 */
 class ValidationError extends Error {
@@ -89,7 +90,7 @@ class ValidationError extends Error {
 			$nProps = count($props);
 			$this->technical_message = $nProps.' affected '.($nProps==1?'property':'properties').': '.join($props, ', ');
 		}
-		//$this->message .= ': '.$this->technical_message;
+		if(getenv('DEBUG') == '1') $this->message .= ': '.$this->technical_message;
 		return $n > 0;
 	}
 
@@ -109,11 +110,19 @@ class ValidationError extends Error {
 class NetworkError extends Error {
 	public $status_code = 10;
 	public $url;
+	public $http_status = 0;
 	public $body;
 
-	function __construct($url, $message, $body='') {
+	/**
+	* @param string $url
+	* @param int $http_status
+	* @param string $message
+	* @param string $body
+	*/
+	function __construct($url, $http_status, $message, $body='') {
 		parent::__construct('Connection to Payment Gateway failed.', $message);
 		$this->url = $url;
+		$this->http_status = $http_status;
 		$this->body = \Hypercharge\Helper::stripCc($body);
 	}
 }
@@ -129,23 +138,36 @@ class XmlParsingError extends Error {
 	}
 }
 
+class ResponseFormatError extends Error {
+	public $status_code = 70;
+	function __construct($msg, $data) {
+		parent::__construct($msg, print_r($data, true));
+	}
+}
+
 /**
+* TODO: exchange technical_message with user_message because user_message isn't containing any usefull informations and is pretty useless.
+*       Exception->message is the field printed into shell message if unhandled exception occurse and that's important when developing imho.
 * @protected
 * Factory function for creating Error Object from error in Hypercharge XML API response
-* @param array $response parsed hypercharge XML API response containing fields {code, message, technical_message}
+* @param array|object $response parsed hypercharge XML API response containing fields {code, message, technical_message}
 * @return 'Hypercharge\Errors\Error' and subclasses if field 'code' given in $response. Returns null if no 'code' given.
 */
 function errorFromResponseHash($response) {
-	$code = @$response['code'];
+
+	$code = is_object($response) ? @$response->code : @$response['code'];
 	if($code === null) return null;
+
+	$msg      = is_object($response) ? @$response->user_message : @$response['message'];
+	$tech_msg = is_object($response) ? @$response->message      : @$response['technical_message'];
 
 	$klass = ERROR_MAPPING::get($code);
 	if($klass) {
 		$klass = 'Hypercharge\Errors\\'.$klass;
-		return new $klass(@$response['message'], @$response['technical_message']);
+		return new $klass($msg, $tech_msg);
 	}
 	// error not in mapping
-	$error = new Error(@$response['message'], @$response['technical_message']);
+	$error = new Error($msg, $tech_msg);
 	$error->status_code = (int) $code;
 	return $error;
 }

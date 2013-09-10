@@ -13,7 +13,7 @@ class TransactionNotificationTest extends HyperchargeTestCase {
 	* signature  : 08d01ae1ebdc22b6a1a764257819bb26e9e94e8d
 	*/
 	function testVerifyValidSignatureBogus() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$tn = new TransactionNotification($postData);
 		$apiPassword = 'bogus';
 		$tn->verify($apiPassword);
@@ -28,7 +28,7 @@ class TransactionNotificationTest extends HyperchargeTestCase {
 	* signature  : 1b34dabed996788efcc049567809484454ee8b17
 	*/
 	function testVerifyValidSignatureTest123() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$postData['unique_id'] = '130319cfb3bf65ff3c4a4045487b173e';
 		$postData['signature'] = '1b34dabed996788efcc049567809484454ee8b17';
 		$tn = new TransactionNotification($postData);
@@ -48,13 +48,13 @@ class TransactionNotificationTest extends HyperchargeTestCase {
 	}
 
 	function testAck() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$tn = new TransactionNotification($postData);
-		$this->assertEqual($this->fixture('transaction_notification_ack.xml'), $tn->ack());
+		$this->assertEqual($this->schemaNotification('transaction_notification_ack.xml'), $tn->ack());
 	}
 
 	function testIsApproved() {
-		$postData = $this->fixture('transaction_notification.json');
+		$postData = $this->schemaNotification('transaction_notification.json');
 		$tn = new TransactionNotification($postData);
 		$this->assertTrue($tn->isApproved());
 

@@ -108,6 +108,19 @@ class HelperTest extends \UnitTestCase {
 		$this->assertPattern('/^foo-bar---[a-f0-9]{13}$/', Helper::appendRandomId('foo-bar'));
 	}
 
+	function testAssignWithObject() {
+		$data = new \stdClass();
+		$data->field_name = 'value';
+		$o = new SerializableImpl($data);
+		$this->assertEqual('value', $o->field_name);
+	}
+
+	function testAssignWithIntThrows() {
+		$this->expectException('Hypercharge\Errors\ArgumentError');
+		new SerializableImpl(7777);
+	}
+
+
 	function testExtractRandomIdWithDefaultDivider() {
 		$o = Helper::extractRandomId('foo-bar---12345677aedf');
 		$this->assertEqual('foo-bar', $o->transaction_id);
@@ -253,4 +266,54 @@ class HelperTest extends \UnitTestCase {
 		$stripped = Helper::stripCc($str);
 		$this->assertFalse(strstr($stripped, '1290701'));
 	}
+
+	function testValidateUniqueIdThrows() {
+		$debug = getenv('DEBUG');
+		putenv('DEBUG=0');
+		try {
+			Helper::validateUniqueId('');
+			$this->fail('expects Exception');
+		} catch(Errors\ValidationError $e) {
+			$this->assertEqual("ValidationError {status_code: 50, technical_message: '1 affected property: unique_id', message: '1 validation error'}", $e->__toString());
+			return;
+		}
+		putenv("DEBUG=$debug");
+	}
+	function testValidateUniqueId() {
+		Helper::validateUniqueId('0293069be5a868ae69290e8a0eff72b3');
+	}
+
+
+  function testArrayToObject1Level() {
+    $o = new \StdClass();
+    $o->a = 'foo';
+    $this->assertIdentical($o, Helper::arrayToObject(array('a'=>'foo')));
+  }
+
+  function testArrayToObject2Levels() {
+    $o = new \StdClass();
+    $o->a = new \StdClass();
+    $o->a->foo = 'bar';
+
+    $this->assertIdentical($o, Helper::arrayToObject(array('a'=>array('foo'=>'bar'))));
+  }
+
+  function testArrayToObjectEmpty() {
+    $o = new \StdClass();
+    $this->assertIdentical($o, Helper::arrayToObject(array()));
+  }
+
+  function testArrayToObjectWithArray() {
+    $o = new \StdClass();
+    $o->a = array('a','b','c');
+
+    $this->assertIdentical($o, Helper::arrayToObject(array('a'=>array('a','b','c'))));
+  }
+
+    function testArrayToObjectWithObject() {
+    $o = new \StdClass();
+    $o->a = 'foo';
+
+    $this->assertIdentical($o, Helper::arrayToObject($o));
+  }
 }

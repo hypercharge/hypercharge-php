@@ -18,7 +18,9 @@ class Factory implements IFactory {
 	* @param string $passw
 	* @return Hypercharge\IHttpsClient
 	*/
-	function createHttpsClient($user, $passw) {
+	function createHttpsClient($user=null, $passw=null) {
+		if($user  === null) $user  = Config::getUser();
+		if($passw === null) $passw = Config::getPassword();
 		return new Curl($user, $passw);
 	}
 
@@ -31,7 +33,6 @@ class Factory implements IFactory {
 	}
 
 	/**
-	* @param string $mode
 	* @param string $channelToken
 	* @param string $action
 	* @return Hypercharge\TransactionUrl
@@ -41,12 +42,12 @@ class Factory implements IFactory {
 	}
 
 	/**
-	* @param string $mode
-	* @param string $channelToken
-	* @param string $action
-	* @return Hypercharge\TransactionUrl
+	* see Hypercharge\v2\Url#__construct
+	* @param string|array $action e.g. 'scheduler' or an array of string e.g. array('scheduler', '<UNIQUE_ID>', 'transactions')
+	* @param array $params GET params as key-value hash e.g. array('page'=>1, 'per_page'=>30) examples see unittest
+	* @return Hypercharge\v2\Url
 	*/
-	function createRecurringUrl($channelToken, $action = 'recurring') {
-		return new TransactionUrl(Config::getMode(), $channelToken, $action);
+	function createUrl($action, $params=array()) {
+		return new v2\Url(Config::getMode(), $action, $params);
 	}
 }

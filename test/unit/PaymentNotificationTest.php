@@ -13,7 +13,7 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	* signature  : 3d82fef85cb60...
 	*/
 	function testVerifyValidSignatureBogus() {
-		$postData = $this->fixture('payment_notification_with_transaction.json');
+		$postData = $this->schemaNotification('payment_notification_with_transaction.json');
 		$notification = new PaymentNotification($postData);
 		$apiPassword = 'b5af4c9cf497662e00b78550fd87e65eb415f42f';
 		$notification->verify($apiPassword);
@@ -28,7 +28,7 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	* signature  : 14519d0db2f7...
 	*/
 	function testVerifyValidSignatureTest123() {
-		$postData = $this->fixture('payment_notification_with_transaction.json');
+		$postData = $this->schemaNotification('payment_notification_with_transaction.json');
 		$postData['payment_unique_id'] = '3f760162ef57a829011e5e2379b3fa17';
 		$postData['signature'] = '14519d0db2f7f8f407efccc9b099c5303f55c0262e3b9132e5bcc97f7febf5f9ab19df03929c1ead271be79807b4086321a023743d2b6b1278c2082b61cf3ff0';
 		$notification = new PaymentNotification($postData);
@@ -49,25 +49,25 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	}
 
 	function testAck() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		$notification = new PaymentNotification($postData);
-		$this->assertEqual($this->fixture('payment_notification_ack.xml'), $notification->ack());
+		$this->assertEqual($this->schemaNotification('payment_notification_ack.xml'), $notification->ack());
 	}
 
 	function testAckWithTransaction() {
-		$postData = $this->fixture('payment_notification_with_transaction.json');
+		$postData = $this->schemaNotification('payment_notification_with_transaction.json');
 		$notification = new PaymentNotification($postData);
-		$this->assertEqual($this->fixture('payment_notification_ack.xml'), $notification->ack());
+		$this->assertEqual($this->schemaNotification('payment_notification_ack.xml'), $notification->ack());
 	}
 
 	function testAckWithSchedule() {
-		$postData = $this->fixture('payment_notification_with_schedule.json');
+		$postData = $this->schemaNotification('payment_notification_with_schedule.json');
 		$notification = new PaymentNotification($postData);
-		$this->assertEqual($this->fixture('payment_notification_ack.xml'), $notification->ack());
+		$this->assertEqual($this->schemaNotification('payment_notification_ack.xml'), $notification->ack());
 	}
 
 	function testIsApproved() {
-		$postData = $this->fixture('payment_notification_with_transaction.json');
+		$postData = $this->schemaNotification('payment_notification_with_transaction.json');
 		$notification = new PaymentNotification($postData);
 		$this->assertTrue($notification->isApproved());
 
@@ -83,14 +83,14 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	}
 
 	function testIsApprovedWithStatusCanceled() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		$notification = new PaymentNotification($postData);
 		$this->assertEqual($notification->payment_status, Payment::STATUS_CANCELED);
 		$this->assertFalse($notification->isApproved());
 	}
 
 	function testGetXWithTransaction() {
-		$postData = $this->fixture('payment_notification_with_transaction.json');
+		$postData = $this->schemaNotification('payment_notification_with_transaction.json');
 		$notification = new PaymentNotification($postData);
 
 		$payment = $notification->getPayment();
@@ -112,7 +112,7 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	}
 
 	function testGetXWithSchedule() {
-		$postData = $this->fixture('payment_notification_with_schedule.json');
+		$postData = $this->schemaNotification('payment_notification_with_schedule.json');
 		$notification = new PaymentNotification($postData);
 
 		$payment = $notification->getPayment();
@@ -133,7 +133,7 @@ class PaymentNotificationTest extends HyperchargeTestCase {
 	}
 
 	function testGetX() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		$notification = new PaymentNotification($postData);
 
 		$payment = $notification->getPayment();

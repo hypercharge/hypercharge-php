@@ -65,14 +65,6 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
-	* @protected
-	* @param string $password merchant api password
-	*/
-	function verify($password) {
-		$this->_verified = hash('sha512', $this->payment_unique_id . $password) == $this->signature;
-	}
-
-	/**
 	* @return boolean
 	*/
 	public function isVerified() {
@@ -102,4 +94,14 @@ class PaymentNotification implements INotification {
 		XmlSerializer::addChild($root, 'unique_id', $this->payment_unique_id);
 		return $root->ownerDocument->saveXml();
 	}
+
+	/**
+	* Do not use! for internal use only
+	* @protected
+	* @param string $password merchant api password
+	*/
+	function verify($password) {
+		$this->_verified = hash('sha512', $this->payment_unique_id . $password) == $this->signature;
+	}
+
 }

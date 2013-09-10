@@ -8,6 +8,8 @@ class PaymentTest extends HyperchargeTestCase {
 
 	function setUp() {
 		Config::setIdSeparator(false);
+    XmlSerializer::$sort = false;
+
 		$this->curl = $curl = m::mock('Curl');
 		$factory = m::mock(new Factory());
 		$factory
@@ -107,7 +109,7 @@ class PaymentTest extends HyperchargeTestCase {
 	}
 
 	function testNotificationRoundtrip() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		$apiPassword = 'b5af4c9cf497662e00b78550fd87e65eb415f42f';
 		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
 		$notification = Payment::notification($postData);
@@ -115,11 +117,11 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertFalse($notification->isApproved());
 		$this->assertEqual(Payment::STATUS_CANCELED, $notification->payment_status);
 		$this->assertEqual(Payment::STATUS_CANCELED, $notification->getPayment()->status);
-		$this->assertEqual($this->fixture('payment_notification_ack.xml'), $notification->ack());
+		$this->assertEqual($this->schemaNotification('payment_notification_ack.xml'), $notification->ack());
 	}
 
 	function testNotificationSignatureBroken() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		$apiPassword = 'wrong';
 		Config::set('username', $apiPassword, Config::ENV_SANDBOX);
 		$notification = Payment::notification($postData);
@@ -142,7 +144,7 @@ class PaymentTest extends HyperchargeTestCase {
 	}
 
 	function testNotificationMissingPasswordThrows() {
-		$postData = $this->fixture('payment_notification.json');
+		$postData = $this->schemaNotification('payment_notification.json');
 		Config::set('username', '', Config::ENV_SANDBOX);
 		$this->assertEqual('', Config::getPassword());
 		try {

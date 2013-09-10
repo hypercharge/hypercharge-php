@@ -134,10 +134,10 @@ class ErrorsTest extends \UnitTestCase {
 	}
 
 	function testNetworkError() {
-		$e = new NetworkError('https://the.url.com', 'socket timeout', '<foo><card_number>420000000000</card_number></foo>');
+		$e = new NetworkError('https://the.url.com', 0,'socket timeout', '<foo><card_number>420000000000</card_number></foo>');
 		$this->assertIsA($e, 'Hypercharge\Errors\NetworkError');
-		$this->assertIsA($e->status_code, 'int');
-		$this->assertEqual($e->status_code, 10);
+		$this->assertIdentical($e->status_code, 10);
+		$this->assertIdentical($e->http_status, 0);
 		$this->assertEqual($e->message, 'Connection to Payment Gateway failed.');
 		$this->assertEqual($e->technical_message, 'socket timeout');
 		$this->assertEqual($e->__toString(), "NetworkError {status_code: 10, technical_message: 'socket timeout', message: 'Connection to Payment Gateway failed.'}");
@@ -148,12 +148,48 @@ class ErrorsTest extends \UnitTestCase {
 	function testXmlParsingError() {
 		$e = new XmlParsingError('the msg <foo><card_number>420000000000</card_number></foo>', 20, 7);
 		$this->assertIsA($e, 'Hypercharge\Errors\XmlParsingError');
-		$this->assertIsA($e->status_code, 'int');
-		$this->assertEqual($e->status_code, 60);
+		$this->assertIdentical($e->status_code, 60);
 		$this->assertEqual($e->message, 'the msg <foo><card_number>xxxxxxxxxxxxxxxxxxx</card_number></foo>');
 		$this->assertEqual($e->technical_message, 'at line 20 column 7');
 		$this->assertEqual($e->__toString(), "XmlParsingError {status_code: 60, technical_message: 'at line 20 column 7', message: 'the msg <foo><card_number>xxxxxxxxxxxxxxxxxxx</card_number></foo>'}");
 		$this->assertEqual($e->line, 20);
 		$this->assertEqual($e->column, 7);
 	}
+
+	function testJsonResponseInputDataInvalidError() {
+		$data = json_decode(\Hypercharge\JsonSchemaFixture::response('scheduler_error.json'));
+		$this->assertIsA($data, 'stdClass');
+		$this->assertIdentical(340, $data->error->code);
+		$e = errorFromResponseHash($data->error);
+		$this->assertIsa($e, 'Hypercharge\Errors\InputDataInvalidError');
+		$this->assertEqual('Please check input data for errors!', $e->message);
+		$this->assertEqual("Validation failed: Amount InputDataInvalidError: 'recurring_schedule[amount]' is invalid", $e->technical_message);
+	}
+
+	function testJsonResponseWorkflowError() {
+		$data = json_decode(\Hypercharge\JsonSchemaFixture::response('scheduler_workflow_error.json'));
+		$this->assertIsA($data, 'stdClass');
+		$this->assertIdentical(400, $data->error->code);
+		$e = errorFromResponseHash($data->error);
+		$this->assertIsa($e, 'Hypercharge\Errors\WorkflowError');
+		$this->assertEqual('Something went wrong, please contact support!', $e->message);
+		$this->assertEqual("transaction already has a schedule.", $e->technical_message);
+	}
+
+	function testResponseFormatErrorStripsCc() {
+		$e = new ResponseFormatError('the message', array('cvv'=>'123', 'card_number'=>'4200000000000000', 'foo'=>'bar'));
+		$this->assertEqual('the message', $e->message);
+		$this->assertEqual(
+'Array
+(
+    [cvv] => xxx
+    [card_number] => xxxxxxxxxxxxxxxxxxx
+    [foo] => bar
+)
+'
+			,$e->technical_message
+		);
+
+	}
+
 }

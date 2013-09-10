@@ -4,6 +4,13 @@
 	"keywords": ["hypercharge", "payment", "api", "sdk"],
 	"hompage":"http://hypercharge.net",
 	"license":"MIT",
+	"authors": [
+		{
+			"name": "Jan Mentzel",
+			"email": "jan@islandofwaiting.de",
+			"role": "Developer"
+		}
+	],
 	"require": {
 		"php": ">=5.3",
 		"ext-curl": "*",
@@ -16,8 +23,8 @@
 		"vierbergenlars/simpletest": "*",
 		"mockery/mockery": "dev-master@dev"
 	},
-  "autoload": {
-    "classmap": ["lib/Hypercharge/"]
-    ,"files": ["lib/Hypercharge/errors.php"]
-  }
+	"autoload": {
+		"classmap": ["lib/Hypercharge/"]
+		,"files": ["lib/Hypercharge/errors.php"]
+	}
 }

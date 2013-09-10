@@ -7,7 +7,6 @@ class XmlMapping {
 		'PaymentRequest' => 'payment'
 		,'TransactionRequest' => 'payment_transaction'
 		,'ReconcileByDateRequest' => 'reconcile'
-		,'RecurringByDateRequest' => 'recurring_schedules'
 	);
 
 	private $classes = array(
@@ -15,7 +14,7 @@ class XmlMapping {
 		,'risk_params' => 'RiskParams'
 		,'payment_transaction' => 'Transaction'
 		,'mpi_params' => 'MpiParams'
-		,'recurring_schedule' => 'RecurringScheduler'
+		,'recurring_schedule' => 'Scheduler'
 	);
 
 	private $converters = array(
