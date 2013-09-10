@@ -72,6 +72,8 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 	* @return object  { user:String, password:String }
 	*/
 	function credentials($name=null) {
+		$this->skipIf(getenv('TRAVIS'), 'remote credentials not yet implemented for travis ci');
+
 		if($name === null) {
 			$name = getenv('CREDENTIALS');
 		}
