@@ -9,9 +9,9 @@ class CurlTest extends HyperchargeTestCase {
 	function testPostToInvalidShouldThrowException() {
 		$curl = new Curl('user', 'passw');
 		try {
-			$curl->xmlPost('http://localhost/eine/falsche/url', '<data />');
+			$curl->xmlPost('https://test.hypercharge.net/eine/falsche/url', '<data />');
 		} catch(Errors\NetworkError $exe) {
-			$this->assertEqual('http://localhost/eine/falsche/url', $exe->url);
+			$this->assertEqual('https://test.hypercharge.net/eine/falsche/url', $exe->url);
 			$this->assertIdentical(404, $exe->http_status);
 			$this->assertEqual('The requested URL returned error: 404', $exe->technical_message);
 			$this->assertPattern('/^Array\n\(\n/', $exe->body);
