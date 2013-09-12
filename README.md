@@ -43,7 +43,7 @@ Later, when deploying your project to your server you will have to upload the co
 
 To get started, add one of the following snippets to your global configuration file.
 
-### Sandbox
+### Sandbox (for testing)
 Hypercharge support creates a test-account and sends you login and password.
 For development and testing. No real money is transfered.
 
