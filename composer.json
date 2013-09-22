@@ -20,7 +20,7 @@
 		"hypercharge/hypercharge-schema": "*"
 	},
 	"require-dev": {
-		"vierbergenlars/simpletest": "*",
+		"simpletest/simpletest": "*",
 		"mockery/mockery": "dev-master@dev"
 	},
 	"autoload": {
