@@ -4,7 +4,7 @@ namespace Hypercharge;
 use \Mockery as m;
 
 require_once(dirname(__DIR__).'/vendor/autoload.php');
-require_once(dirname(__DIR__).'/vendor/vierbergenlars/simpletest/autorun.php');
+require_once(dirname(__DIR__).'/vendor/simpletest/simpletest/autorun.php');
 
 
 abstract class HyperchargeTestCase extends \UnitTestCase {
