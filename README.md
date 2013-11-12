@@ -10,7 +10,7 @@ tested with PHP > 5.3 on OSX/Linux
 ## Installation
 
 Do not download the Hypercharge PHP SKD files manually.
-You download and install it with [composer](http://getcomposer.org/), a php package manger.
+The php package manger [composer](http://getcomposer.org/) takes care of that.
 
 Let's say  `MY_PROJECT/` is your project root folder.
 
@@ -30,13 +30,24 @@ Do the following three steps:
 ```
 This will tell composer to install the most recent Hypercharge PHP SDK version.
 
-3) in the shell (dos console or terminal) go to `MY_PROJECT/` and run the command
+3) in the shell (DOS console or terminal) go to `MY_PROJECT/` and run the command
 ```sh
 $ php composer.phar install
 ```
 This downloads and installs Hypercharge PHP SDK and its dependencies into `MY_PROJECT/vendor/`.
 
-Later, when deploying your project to your server you will have to upload the complete `MY_PROJECT/vendor/` directory to your server as well.
+
+Show what has been installed
+```sh
+$ php composer.phar show --installed
+hypercharge/hypercharge-php    1.24.4 Hypercharge PHP Library / SDK
+hypercharge/hypercharge-schema 1.24.6 Hypercharge API JSON Schema
+hypercharge/json-schema-php    1.3.3  A library to validate a json schema.
+```
+nice.
+
+
+Notice: Later, when deploying your project to your server, upload the complete `MY_PROJECT/vendor/` directory as well. `MY_PROJECT/vendor/` contains the installed packages and autoload files.
 
 
 ## Configuration
@@ -79,28 +90,90 @@ Submit 77.00 USD as a credit card sale to hypercharge channel.
 ```php
 require_once 'config.php';
 
-$channelToken = 'e9fd7a957845450fb7ab9dccb498b6e1f6e1e3aa';
+// see field 'currency'
+$channelToken = 'YOUR-USD-CHANNEL-TOKEN';
 
 $sale = Hypercharge\Transaction::sale($channelToken, array(
   'currency'          => 'USD'
-  ,'amount'           => '7700' // in cents
-  ,'transaction_id'   => 'YOUR-GENERATED-UNIQUE-ID'
+  ,'amount'           => 7700 // in cents, must be int
+  ,'transaction_id'   => 'YOUR-GENERATED-UNIQUE-ID' // TODO your order-id here
   ,'usage'            => 'Appears in the customers bank statement'
   ,'card_holder'      => 'Max Mustermann'
   ,'expiration_month' => '07'
   ,'expiration_year'  => '2018'
-  ,'card_number'      => '4200000000000000' // a valid dummy
+  ,'card_number'      => '4200000000000000'
   ,'cvv'              => '123'
   ,'customer_email'   => 'max@mustermann.de'
   ,'customer_phone'   => '+403012345678'
+
+  // TODO: dummy for cli run only. remove!
+  ,'remote_ip'        => '127.0.0.1'
+  // TODO: uncomment
+  //,'remote_ip'        => $_SERVER['REMOTE_ADDR']
+
+  ,"billing_address" => array(
+      "first_name" =>"Max",
+      "last_name"  =>"Mustermann",
+      "address1"   =>"Muster Str. 12",
+      "zip_code"   =>"10178",
+      "city"       =>"Berlin",
+      "country"    =>"DE"
+  )
 ));
 
-if($sale->isSuccess()) {
+if($sale->isApproved()) {
   // cc transaction successfull
 } else {
   //
 }
 ```
+
+To see local validation errors wrap the `Hypercharge\Transaction::sale` call in a `try catch`.
+```php
+require_once 'config.php';
+
+$channelToken = 'YOUR-USD-CHANNEL-TOKEN';
+try {
+  $sale = Hypercharge\Transaction::sale($channelToken, array(
+    'currency'          => 'USD'
+    ,'amount'           => 7700 // in cents, must be int
+    ,'transaction_id'   => 'YOUR-GENERATED-UNIQUE-ID' // TODO your order-id here
+    ,'usage'            => 'Appears in the customers bank statement'
+    ,'card_holder'      => 'Max Mustermann'
+    ,'expiration_month' => '07'
+    ,'expiration_year'  => '2018'
+    ,'card_number'      => '4200000000000000'
+    ,'cvv'              => '123'
+    ,'customer_email'   => 'max@mustermann.de'
+    ,'customer_phone'   => '+403012345678'
+    ,'remote_ip'        => $_SERVER['REMOTE_ADDR']
+    ,"billing_address" => array(
+        "first_name" =>"Max",
+        "last_name"  =>"Mustermann",
+        "address1"   =>"Muster Str. 12",
+        "zip_code"   =>"10178",
+        "city"       =>"Berlin",
+        "country"    =>"DE"
+    )
+  ));
+
+  if($sale->isApproved()) {
+    echo "cc transaction successfull\n";
+    print_r($sale);
+  } else {
+    echo "cc transaction FAILED\n";
+    print_r($sale);
+  }
+} catch(Hypercharge\Errors\ValidationError $e) {
+  echo "local validation errors\n";
+  print_r( $e->errors );
+
+} catch(Exception $e) {
+  echo "severe error\n";
+  print_r($e);
+}
+```
+
 ## Web Payment Form (WPF) session
 
 The following example is more complex.
@@ -359,9 +432,26 @@ If you're concerned of POSTing cc data via internet: The `$payment->submit_url` 
 
 ## Tests
 
+Running tests for hypercharge-php itself has to be done outside of `MY_PROJECT`.
+Clone hypercharge-php into its own directory
+
+```sh
+git clone https://github.com/hypercharge/hypercharge-php.git
+```
+
+step into the directory
+```sh
+cd hypercharge-php
+```
+
+install composer (here 1.0.0-alpha7 feel free to use a more recent one)
+```sh
+curl -o composer.phar http://getcomposer.org/download/1.0.0-alpha7/composer.phar
+```
+
 install dev dependecies
 ```sh
-composer update --dev
+php composer.phar update --dev
 ```
 
 ### Unit Tests
@@ -369,6 +459,12 @@ Run the unit tests
 ```sh
 php test/all.php
 ```
+
+You might wonder what the output means:
+```sh
+File does not exist /home/hans/hypercharge-php/test/credentials.json. See README.md chapter 'Remote Tests' how to setup credentials for testing.
+```
+Simply read the next chapter.
 
 ### Remote Tests
 
