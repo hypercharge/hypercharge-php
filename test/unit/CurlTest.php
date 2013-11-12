@@ -22,8 +22,16 @@ class CurlTest extends HyperchargeTestCase {
 		try {
 			$curl = new Curl('user', 'passw');
 			$response = $curl->xmlPost('https://test.hypercharge.net/', '');
-			//'Sat Apr 27 09:41:53 UTC 2013'
-			$this->assertPattern('/^\w\w\w \w\w\w \d\d? [0-2]\d:[0-5]\d:[0-5]\d UTC 20\d\d$/', $response);
+			// $response = '2013-11-12 10:54:00 BNN'; // invalid time zone
+			// $response = 'Sat Apr 27 09:41:53 UTC 2013'; // valid
+			// $response = '2013-11-12 19:41:53 UTC'; // valid
+			$parsed = \date_parse($response);
+			$this->assertIsA($parsed, 'array', $response);
+			$this->assertEqual(0, $parsed['error_count'], 'response: "'.$response.'" when parsed, error_count should be 0 but is: '.print_r($parsed, true));
+			$this->assertEqual(array(), $parsed['errors'], 'errors should be empty: '.print_r($parsed, true));
+			$this->assertEqual(array(), $parsed['warnings'], 'warnings should be empty: '.print_r($parsed, true));
+			// too restrictive - format slightly changes when server packages updated
+			//$this->assertPattern('/^\w\w\w \w\w\w \d\d? [0-2]\d:[0-5]\d:[0-5]\d UTC 20\d\d$/', $response);
 		}	catch(\Exception $exe)	{
 			$this->fail($exe->getMessage());
 		}

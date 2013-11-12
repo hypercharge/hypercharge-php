@@ -128,6 +128,7 @@ class HelperTest extends \UnitTestCase {
 	}
 
 	function testExtractRandomIdWithWrongDivider() {
+		echo "INFO: The next notice message is provoked by the test and is totally ok:\n";
 		$this->expectError("WARNING in \\Hypercharge\\Helper::extractRandomId(): no seperator found. transaction_id: 'foo-bar###12345677aedf'");
 		$o = Helper::extractRandomId('foo-bar###12345677aedf');
 		$this->assertEqual('foo-bar###12345677aedf', $o->transaction_id);

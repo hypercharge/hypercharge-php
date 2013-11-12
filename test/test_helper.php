@@ -87,6 +87,11 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 			$name = 'sandbox';
 		}
 		$file = __DIR__.'/credentials.json';
+		if(!file_exists($file)) {
+			// no trigger_error() because simpletest considers even E_USER_NOTICE as failure :-|
+			echo "File does not exist $file. See README.md chapter 'Remote Tests' how to setup credentials for testing.\n";
+			return false;
+		}
 		$str = file_get_contents($file);
 		$all = json_decode($str);
 		if(!$all) {
