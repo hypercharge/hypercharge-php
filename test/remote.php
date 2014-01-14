@@ -1,7 +1,7 @@
 <?php
 require_once 'test_helper.php';
 
-class AllTests extends TestSuite {
+class RemoteTests extends TestSuite {
 	function __construct() {
 		$this->TestSuite('Remote tests');
 

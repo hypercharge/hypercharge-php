@@ -187,23 +187,36 @@ The following example is more complex.
 require_once 'config.php';
 
 try {
-  // create the WPF session
-  $wpf = Hypercharge\Payment::wpf(array(
+  // create the WPF payment session
+  $payment = Hypercharge\Payment::wpf(array(
     'currency' => 'EUR'
-    ,'amount' => '1000' // in cents
-    ,'transaction_id' => 'YOUR-GENERATED-UNIQUE-ID'
-    ,'usage' => 'Appears in the customers bank statement'
+    ,'amount' => 1000 // in cents
+    ,'transaction_id' => 'YOUR-GENERATED-UNIQUE-ID' // TODO replace with your e.g. order id
+    ,'description' => 'Appears as intro text in the WPF form'
+
+    // TODO: set your PaymentNotification handler url here
     ,'notification_url' => 'https://your-server.com/hypercharge-wpf-notifications.php'
+
+    // TODO: set your return pages for the user here. These are the pages he is shown after leaving the WPF
     ,'return_success_url' => 'http://your-server.com/payment-return-page.php?status=success'
     ,'return_failure_url' => 'http://your-server.com/payment-return-page.php?status=failure'
     ,'return_cancel_url'  => 'http://your-server.com/payment-return-page.php?status=cancel'
+
+    ,'billing_address' => array(
+        'first_name' =>'Max',
+        'last_name'  =>'Mustermann',
+        'address1'   =>'Muster Str. 12',
+        'zip_code'   =>'10178',
+        'city'       =>'Berlin',
+        'country'    =>'DE'
+    )
   ));
 
-  if($wpf->shouldRedirect()) {
+  if($payment->shouldRedirect()) {
     // ok, WPF session created.
 
-    // pseudocode implement!
-    save_payment_unique_id_to_order( $payment->unique_id );
+    // TODO: pseudocode, comment or replace with your own business logic!
+    store_hypercharge_payment_unique_id_to_your_order( $payment->unique_id );
 
     // redirect user to WPF
     header('Location: '. $payment->redirect_url);
@@ -212,8 +225,8 @@ try {
   } elseif($payment->isPersistentInHypercharge()) {
     // payment has been created in hypercharge but something went wrong.
 
-    // pseudocode implement!
-    save_payment_unique_id_to_order( $payment->unique_id );
+    // TODO: pseudocode, comment or replace with your own business logic!
+    store_hypercharge_payment_unique_id_to_your_order( $payment->unique_id );
 
     // 1.) check $payment->error (a subclass of Hypercharge\Errors\Error)
     //     and show error message to customer
@@ -222,9 +235,8 @@ try {
 
   } else {
     // TODO handle error
-    // authentication error -> check $login, $password
-    // inputdata error -> check your php code for missing or
-    //   misspelled fields in $paymentData
+    // authentication error? check $login, $password
+    // inputdata error? check your php code for missing or misspelled fields.
 
   }
 
@@ -248,10 +260,9 @@ The WPF is displayed in English by default (`'en'`). If you want a German WPF si
 ```
 
 
-## WPF Notification
+## WPF PaymentNotification
 
-Notifications is a server to server request in the background. Neither webbrowser nor user interaction is involved.
-With the notification hypercharge tells your system if the payment was successfull or not.
+With a PaymentNotification Hypercharge notifies your server about a Payment status change e.g. when a Payment was successfull (status `approved`) or has failed in some way. A PaymentNotification is a server to server request in the background. Neither webbrowser nor user interaction is involved.
 
 ```
 hypercharge                 your-server.com/hypercharge-wpf-notifications.php
@@ -262,7 +273,7 @@ hypercharge                 your-server.com/hypercharge-wpf-notifications.php
 
 ```
 
-You place the code under the url you specify as `notification_url` (`https://your-server.com/hypercharge-wpf-notifications.php` in the "Web Payment Form (WPF) session" example abough)
+You place the php script under the url you specify as `notification_url` (`https://your-server.com/hypercharge-wpf-notifications.php` in the "Web Payment Form (WPF) session" example abough)
 
 A scelleton:
 
@@ -379,7 +390,7 @@ try {
   // create the mobile payment session
   $payment = Hypercharge\Payment::mobile(array(
     'currency' => 'EUR'
-    ,'amount' => '1000' // in cents
+    ,'amount' => 1000 // in cents
     ,'transaction_id' => 'YOUR-GENERATED-UNIQUE-ID'
     ,'usage' => 'Appears in the customers bank statement'
     ,'notification_url' => 'https://your-server.com/hypercharge-wpf-notifications.php'
