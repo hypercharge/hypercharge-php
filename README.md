@@ -330,7 +330,7 @@ if($notification->isVerified()) {
     // example as pseudocode, replace with your own code...
 
     // store notification status to your database
-    // Notice: to be 100% reacecondition proof update status to 'payment_approved' has to be done atomically
+    // Notice: to be 100% racecondition proof update status to 'payment_approved' has to be done atomically
     $updatedRows = update_order(array(
       'set'   => array('status'=> 'payment_approved'),
       'where' => array('status'=> 'waiting_for_payment_approval'
@@ -426,7 +426,7 @@ try {
 
 ## Submit Mobile Payment from mobile device
 
-Example Mobile Submit XML your mobile mobile application posts to `$payment->submit_url` to process the payment.
+Example Mobile Submit XML your mobile application posts to `$payment->submit_url` to process the payment.
 
 ```xml
 <payment>

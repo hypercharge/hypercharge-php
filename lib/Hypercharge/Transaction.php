@@ -31,7 +31,7 @@ class Transaction implements IResponse {
 
 	/**
 	* convinience method
-	* @return string 'sale', 'athorize', 'capture', 'refund', 'void', ...
+	* @return string 'sale', 'authorize', 'capture', 'refund', 'void', ...
 	*/
 	function getType() {
 		return $this->transaction_type;
