@@ -1,6 +1,38 @@
 <?php
 namespace Hypercharge;
-
+/**
+* PaymentNotifaction itself has a minimal set of fields.
+* Payment, Transaction and Schedule details can be fetched from hypercharge server with
+* <pre>
+* $payment     = $notification->getPayment();
+* $transaction = $notification->getTransaction();
+* $schedule    = $notification->getSchedule();
+* </pre>
+*
+* PaymentNotification fields.
+* You won't need to access them directly in most cases.
+*
+* Payment fields:
+* <pre>
+*   notification_type
+*   payment_unique_id
+*   payment_transaction_id
+*   payment_status
+* </pre>
+*
+* If the Payment has a Transaction:
+* <pre>
+*   payment_transaction_transaction_type
+*   payment_transaction_unique_id
+*   payment_transaction_channel_token
+* </pre>
+*
+* If the Payment has a Schedule:
+* <pre>
+*   schedule_unique_id
+*   schedule_end_date
+* </pre>
+*/
 class PaymentNotification implements INotification {
 
 	private $_verified = false;
@@ -11,16 +43,11 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
-	* convinience method
-	* @return stdClass fields: type, unique_id, transaction_id, status
+	* fetch all Payment details from hypercharge server
+	* @return Hypercharge\Payment
 	*/
 	function getPayment() {
-		$o = new \stdClass();
-		$o->type           = $this->notification_type;
-		$o->unique_id      = $this->payment_unique_id;
-		$o->transaction_id = $this->payment_transaction_id;
-		$o->status         = $this->payment_status;
-		return $o;
+		return Payment::find($this->payment_unique_id);
 	}
 
 	/**
@@ -33,16 +60,13 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
-	* convinience method
-	* @return stdClass  fields: transaction_type, unique_id, channel_token
+	* fetch all Transaction details from hypercharge server.
+	* @return Hypercharge\Transaction null if Notification has no Transaction
 	*/
 	function getTransaction() {
 		if(!$this->hasTransaction()) return null;
-		$o = new \stdClass();
-		$o->transaction_type = $this->payment_transaction_transaction_type;
-		$o->unique_id        = $this->payment_transaction_unique_id;
-		$o->channel_token    = $this->payment_transaction_channel_token;
-		return $o;
+
+		return Transaction::find($this->payment_transaction_channel_token, $this->payment_transaction_unique_id);
 	}
 
 	/**
@@ -53,15 +77,13 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
-	* convinience method
-	* @return stdClass  fields: unique_id, end_date
+	* fetch all Schedule details from hypercharge server.
+	* @return Hypercharge\Schedule null if Notification has no Schedule
 	*/
 	function getSchedule() {
 		if(!$this->hasSchedule()) return null;
-		$o = new \stdClass();
-		$o->unique_id = $this->schedule_unique_id;
-		$o->end_date  = $this->schedule_end_date;
-		return $o;
+
+		return Schedule::find($this->schedule_unique_id);
 	}
 
 	/**
@@ -72,6 +94,7 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
+	* @deprecated use  $payment = $notification->getPayment(); $payment->isApproved()
 	* checks if Payment.status == 'approved'
 	* @return boolean
 	*/
