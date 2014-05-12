@@ -1,7 +1,7 @@
 <?php
 namespace Hypercharge;
 /**
-* PaymentNotifaction itself has a minimal set of fields.
+* PaymentNotifaction itself has a minimal set of fields (see below)
 * Payment, Transaction and Schedule details can be fetched from hypercharge server with
 * <pre>
 * $payment     = $notification->getPayment();
@@ -9,7 +9,7 @@ namespace Hypercharge;
 * $schedule    = $notification->getSchedule();
 * </pre>
 *
-* PaymentNotification fields.
+* private PaymentNotification fields.
 * You won't need to access them directly in most cases.
 *
 * Payment fields:
@@ -83,7 +83,7 @@ class PaymentNotification implements INotification {
 	function getSchedule() {
 		if(!$this->hasSchedule()) return null;
 
-		return Schedule::find($this->schedule_unique_id);
+		return Scheduler::find($this->schedule_unique_id);
 	}
 
 	/**
@@ -103,7 +103,17 @@ class PaymentNotification implements INotification {
 	}
 
 	/**
-	* returns xml echo
+	* In order hypercharge knows the notification has been received and processed successfully by your server
+	* you have to respond with an ack message.
+	* <pre>
+	*  die($notifiction->ack())
+	* </pre>
+	*
+	* If you do not do so, hypercharge will send the notification again later (up to 10 times at increasing intervals).
+	* This also applies to accidentally polluting the output with php error-, warning- or notice-messages (invalid xml).
+	*
+	*
+	* fyi: ack() returns an xml string e.g.
 	*
 	* <?xml version="1.0" encoding="UTF-8"?>
 	* <notification_echo>

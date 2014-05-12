@@ -186,7 +186,8 @@ class Curl implements IHttpsClient {
 	* @throws Hypercharge\Errors\Error
 	*/
 	function handleError($url, $status, $response, $curlError, $curlInfo) {
-		if(200 <= $status && $status < 400) return;
+		// redirects are considered errors as hypercharge api doesn't do redirects
+		if(200 <= $status && $status < 300) return;
 
 		if(empty($curlError)) $curlError = "The requested URL returned error: ".$status;
 		$this->logError($curlError."\n".print_r($curlInfo, true));

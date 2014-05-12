@@ -178,6 +178,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertNull($response->unique_id);
 		$this->assertNull(@$response->amount);
 		$this->assertNull(@$response->currency);
+		$this->assertTrue($response->isFatalError());
 		$error = $response->error;
 		$this->assertIsA($error, 'Hypercharge\Errors\WorkflowError');
 		$this->assertEqual($error->status_code, 400);
@@ -207,6 +208,25 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertEqual($response->payment_methods, $this->expected_payment_methods, 'payment_methods %s');
 	}
 
+	function testMobileFindWithWrongId() {
+		$data = $this->fixture('mobile_payment_request_simple.json');
+		$payment = Payment::mobile($data);
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isNew());
+		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
+		$response = Payment::find('000111222333444555666777888999ab'); // wrong ID
+		$this->assertIsA($response, 'Hypercharge\Payment');
+		$this->assertTrue($response->isFatalError());
+		$error = $response->error;
+		// check the fixture fields correspond to gateway response
+		$fixture = $this->parseXml($this->schemaResponse('WpfPayment_error_400.xml'));
+		$this->assertIsA($error, 'Hypercharge\Errors\WorkflowError');
+		$this->assertEqual($error->status_code, 400);
+		$this->assertEqual($error->status_code, $fixture['payment']['code']);
+		$this->assertEqual($error->message, $fixture['payment']['message']);
+		$this->assertEqual($error->technical_message, $fixture['payment']['technical_message']);
+	}
+
 	function testMobileSubmit() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
 		// create MobilePayment
@@ -215,7 +235,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertTrue($payment->isNew());
 		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
 
-		// fake mobile client submit
+		// mobile client submit
 		$wpf = new XmlWebservice();
 		$submitResponse = $wpf->call(new MobileSubmitUrl($payment->submit_url), new MobileSubmitRequest());
 		$this->assertIsA($submitResponse, 'Hypercharge\Payment');
@@ -241,7 +261,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$this->assertPattern('/^[0-9a-f]{32}$/', $payment->unique_id);
 		$this->assertEqual($payment->payment_methods, array('credit_card'));
 
-		// fake mobile client submit
+		// mobile client submit
 		$wpf = new XmlWebservice();
 		$submitResponse = $wpf->call(new MobileSubmitUrl($payment->submit_url), new MobileSubmitRequest());
 		$this->assertIsA($submitResponse, 'Hypercharge\Payment');

@@ -108,6 +108,62 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertIsA($trx->billing_address, 'Hypercharge\Address');
 	}
 
+	function testFind() {
+		$request  = $this->schemaRequest('reconcile.xml');
+		$request = preg_replace('/<unique_id>[0-9a-f]+<\/unique_id>/', '<unique_id>f002f4b2c726f8b7312fccbcda990a3c</unique_id>', $request);
+		$response = $this->schemaResponse('WpfPayment_find.xml');
+		// print_r($request);
+		// print_r($response);
+
+		$this->curl
+			->shouldReceive('xmlPost')
+			->with('https://testpayment.hypercharge.net/payment/reconcile', $request)
+			->andReturn($response);
+
+		$payment = Payment::find('f002f4b2c726f8b7312fccbcda990a3c');
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertEqual($payment->unique_id, 'f002f4b2c726f8b7312fccbcda990a3c');
+		$this->assertEqual($payment->amount, 5000);
+	}
+
+	function testFindWithSystemError() {
+		$request  = $this->schemaRequest('reconcile.xml');
+		$response = $this->schemaResponse('WpfPayment_error.xml');
+
+		$this->curl
+			->shouldReceive('xmlPost')
+			->with('https://testpayment.hypercharge.net/payment/reconcile', $request)
+			->andReturn($response);
+
+		$payment = Payment::find('61c06cf0a03d01307dde542696cde09d');
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isFatalError());
+		$error = $payment->error;
+		$this->assertIsA($error, 'Hypercharge\Errors\SystemError');
+		$this->assertEqual($error->status_code, 100);
+		$this->assertEqual($error->technical_message, 'Unknown system error. Please contact support.');
+		$this->assertEqual($error->message          , 'Transaction failed, please contact support!');
+}
+
+	function testFindWithWorkflowError() {
+		$request  = $this->schemaRequest('reconcile.xml');
+		$response = $this->schemaResponse('WpfPayment_error_400.xml');
+
+		$this->curl
+			->shouldReceive('xmlPost')
+			->with('https://testpayment.hypercharge.net/payment/reconcile', $request)
+			->andReturn($response);
+
+		$payment = Payment::find('61c06cf0a03d01307dde542696cde09d');
+		$this->assertIsA($payment, 'Hypercharge\Payment');
+		$this->assertTrue($payment->isFatalError());
+		$error = $payment->error;
+		$this->assertIsA($error, 'Hypercharge\Errors\WorkflowError');
+		$this->assertEqual($error->status_code, 400);
+		$this->assertEqual($error->technical_message, 'payment not found.');
+		$this->assertEqual($error->message          , 'Something went wrong, please contact support!');
+	}
+
 	function testNotificationRoundtrip() {
 		$postData = $this->schemaNotification('payment_notification.json');
 		$apiPassword = 'b5af4c9cf497662e00b78550fd87e65eb415f42f';
@@ -116,7 +172,6 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertTrue($notification->isVerified());
 		$this->assertFalse($notification->isApproved());
 		$this->assertEqual(Payment::STATUS_CANCELED, $notification->payment_status);
-		$this->assertEqual(Payment::STATUS_CANCELED, $notification->getPayment()->status);
 		$this->assertEqual($this->schemaNotification('payment_notification_ack.xml'), $notification->ack());
 	}
 
