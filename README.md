@@ -87,6 +87,9 @@ If there is no `MY_PROJECT/vendor/autoload.php` in your project follow the [inst
 
 Submit 77.00 USD as a credit card sale to hypercharge channel.
 
+Note: You have to be [PCI compliant](https://en.wikipedia.org/wiki/Payment_Card_Industry_Data_Security_Standard) to handle Credict Card data.
+Most likely you are not PCI compliant, in that case you use our [Web Payment Form](#web-payment-form-wpf-session) or our [Mobile Payment](#create-mobile-payment-session).
+
 ```php
 require_once 'config.php';
 
