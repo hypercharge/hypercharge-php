@@ -7,6 +7,7 @@ PHP SDK for the Hypercharge payment gateway.
 
 tested with PHP > 5.3 on OSX/Linux
 
+
 ## Installation
 
 Do not download the Hypercharge PHP SKD files manually.
@@ -40,8 +41,8 @@ This downloads and installs Hypercharge PHP SDK and its dependencies into `MY_PR
 Show what has been installed
 ```sh
 $ php composer.phar show --installed
-hypercharge/hypercharge-php    1.24.4 Hypercharge PHP Library / SDK
-hypercharge/hypercharge-schema 1.24.6 Hypercharge API JSON Schema
+hypercharge/hypercharge-php    1.25.0 Hypercharge PHP Library / SDK
+hypercharge/hypercharge-schema 1.24.7 Hypercharge API JSON Schema
 hypercharge/json-schema-php    1.3.3  A library to validate a json schema.
 ```
 nice.
