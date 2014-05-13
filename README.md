@@ -193,6 +193,7 @@ try {
     ,'amount' => 1000 // in cents
     ,'transaction_id' => 'YOUR-GENERATED-UNIQUE-ID' // TODO replace with your e.g. order id
     ,'description' => 'Appears as intro text in the WPF form'
+    ,'usage' => 'Appears in the customers bank statement'
 
     // TODO: set your PaymentNotification handler url here
     ,'notification_url' => 'https://your-server.com/hypercharge-wpf-notifications.php'
@@ -219,7 +220,7 @@ try {
     store_hypercharge_payment_unique_id_to_your_order( $payment->unique_id );
 
     // redirect user to WPF
-    header('Location: '. $payment->redirect_url);
+    header('Location: '. $payment->getRedirectUrl());
 
   // handle errors...
   } elseif($payment->isPersistentInHypercharge()) {
