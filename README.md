@@ -41,8 +41,8 @@ This downloads and installs Hypercharge PHP SDK and its dependencies into `MY_PR
 Show what has been installed
 ```sh
 $ php composer.phar show --installed
-hypercharge/hypercharge-php    1.25.0 Hypercharge PHP Library / SDK
-hypercharge/hypercharge-schema 1.24.7 Hypercharge API JSON Schema
+hypercharge/hypercharge-php    1.25.1 Hypercharge PHP Library / SDK
+hypercharge/hypercharge-schema 1.24.8 Hypercharge API JSON Schema
 hypercharge/json-schema-php    1.3.3  A library to validate a json schema.
 ```
 nice.

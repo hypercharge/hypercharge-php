@@ -2,7 +2,7 @@
 	"name":"hypercharge/hypercharge-php",
 	"description":"Hypercharge PHP Library / SDK",
 	"keywords": ["hypercharge", "payment", "api", "sdk"],
-	"hompage":"http://hypercharge.net",
+	"hompage":"https://secure.sankyu.com/integration",
 	"license":"MIT",
 	"authors": [
 		{

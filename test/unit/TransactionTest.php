@@ -232,6 +232,48 @@ class TransactionTest extends HyperchargeTestCase {
 		$this->assertTrue($t->isFatalError());
 	}
 
+	function testFind() {
+		XmlSerializer::$sort = false;
+
+		$requestXml  = $this->schemaRequest( 'reconcile.xml');
+		$responseXml = $this->schemaResponse('reconcile.xml');
+
+		$this->curlMock()
+			->shouldReceive('xmlPost')
+			->with('https://test.hypercharge.net/reconcile/CHANNEL_TOKEN', $requestXml)
+			->once()
+			->andReturn($responseXml);
+
+		$trx = Transaction::find('CHANNEL_TOKEN',  '61c06cf0a03d01307dde542696cde09d');
+		$this->assertIsA($trx, 'Hypercharge\Transaction');
+		$this->assertEqual($trx->unique_id, '61c06cf0a03d01307dde542696cde09d');
+		$this->assertTrue($trx->isApproved());
+		$this->assertEqual($trx->amount, 1700);
+		$this->assertEqual($trx->currency, 'EUR');
+		$this->assertEqual($trx->transaction_id, 'YourId---51a868de76def');
+	}
+
+	function testFindNotFound() {
+		XmlSerializer::$sort = false;
+
+		$requestXml  = $this->schemaRequest( 'reconcile.xml');
+		$responseXml = $this->schemaResponse('reconcile_not_found.xml');
+
+		$this->curlMock()
+			->shouldReceive('xmlPost')
+			->with('https://test.hypercharge.net/reconcile/CHANNEL_TOKEN', $requestXml)
+			->once()
+			->andReturn($responseXml);
+
+
+		$trx =Transaction::find('CHANNEL_TOKEN',  '61c06cf0a03d01307dde542696cde09d');
+		$this->assertTrue($trx->isFatalError());
+		$err = $trx->error;
+		$this->assertIsA($err, 'Hypercharge\Errors\TransactionNotFoundError');
+		$this->assertEqual($err->status_code, 460);
+		$this->assertEqual($err->technical_message, 'Transaction not found!');
+	}
+
 	function testEachWithSingleResult() {
 		XmlSerializer::$sort = false;
 
