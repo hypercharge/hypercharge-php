@@ -2,7 +2,7 @@
 namespace Hypercharge;
 
 /**
-* log into file:
+* FileLogger logs into file:
 * $file = fopen('/var/log/foo.log', 'w');
 * Hypercharge\Config::setLogger(new Hypercharge\FileLogger($file));
 * ...
@@ -46,7 +46,7 @@ class FileLogger implements ILogger {
 }
 
 /**
-* used as a dummy placeholder instead of null
+* NullLogger can be used as a dummy placeholder instead of null
 */
 class NullLogger implements ILogger {
 
@@ -61,7 +61,7 @@ class NullLogger implements ILogger {
 }
 
 /**
-* usefull for debugging automated tests in the terminal
+* StdoutLogger is usefull for debugging automated tests in the terminal
 */
 class StdoutLogger extends FileLogger {
 	function __construct($level = self::DEBUG) {
@@ -71,6 +71,34 @@ class StdoutLogger extends FileLogger {
 		if(!$this->fileHandle) return;
 		fclose($this->fileHandle);
 		$this->fileHandle = 0;
+	}
+}
+
+/**
+* PHPErrorLogLogger logs with php error_log() is usefull for debugging notifications
+*/
+class PHPErrorLogLogger implements ILogger {
+	protected $level = self::DEBUG;
+
+	function __construct($level = self::DEBUG) {
+		$this->level = $level;
+	}
+
+	function debug($str) {
+		$this->log(self::DEBUG, $str);
+	}
+
+	function info($str) {
+		$this->log(self::INFO, $str);
+	}
+
+	function error($str) {
+		$this->log(self::ERROR, $str);
+	}
+
+	function log($level, $str) {
+		if($level < $this->level) return;
+		error_log($str, 4);
 	}
 }
 
