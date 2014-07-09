@@ -124,6 +124,16 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertEqual($payment->unique_id, 'f002f4b2c726f8b7312fccbcda990a3c');
 		$this->assertEqual($payment->amount, 5000);
+
+		$trx = $payment->transaction;
+		$this->assertIsA($trx, 'Hypercharge\Transaction');
+		$this->assertEqual($trx->unique_id, '33d0ea86616a89d091a300c25ac683cf');
+
+		$trxs = $payment->transactions;
+		$this->assertIsA($trxs, 'array');
+		$this->assertEqual(count($trxs), 1);
+		$this->assertIsA($trxs[0], 'Hypercharge\Transaction');
+		$this->assertEqual($trxs[0]->unique_id, '33d0ea86616a89d091a300c25ac683cf');
 	}
 
 	function testFindWithSystemError() {

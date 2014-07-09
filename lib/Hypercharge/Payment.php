@@ -46,7 +46,7 @@ class Payment implements IResponse {
 					$this->transactions[] = new Transaction($data);
 				}
 			} else {
-				$this->transactions[] = new Transaction($p['payment_transaction']);
+				$this->transactions[] = $this->transaction = new Transaction($p['payment_transaction']);
 			}
 		}
 	}
