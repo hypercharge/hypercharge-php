@@ -228,7 +228,7 @@ class Payment implements IResponse {
 
 	function __toString() {
 		$trxs = '[';
-		if(!empty(@$this->transactions)) {
+		if(!empty($this->transactions)) {
 			$trxs .= join(array_map(function($e) { return $e->type.':'.$e->unique_id; }, $this->transactions), ', ');
 		}
 		$trxs .= ']';
