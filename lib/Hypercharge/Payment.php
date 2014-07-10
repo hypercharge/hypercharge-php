@@ -39,6 +39,7 @@ class Payment implements IResponse {
 		unset($this->message);
 		unset($this->technical_message);
 
+		// payment_transaction might be an array, as there might be multiple payment_transaction sibling-nodes in xml :-|
 		if(isset($p['payment_transaction'])) {
 			$this->transactions = array();
 			if(array_key_exists(0, $p['payment_transaction'])) {
@@ -46,7 +47,7 @@ class Payment implements IResponse {
 					$this->transactions[] = new Transaction($data);
 				}
 			} else {
-				$this->transactions[] = $this->transaction = new Transaction($p['payment_transaction']);
+				$this->transactions[] = new Transaction($p['payment_transaction']);
 			}
 		}
 	}
@@ -225,6 +226,25 @@ class Payment implements IResponse {
 		return $pn;
 	}
 
+	function __toString() {
+		$trxs = '[';
+		if(!empty(@$this->transactions)) {
+			$trxs .= join(array_map(function($e) { return $e->type.':'.$e->unique_id; }, $this->transactions), ', ');
+		}
+		$trxs .= ']';
+
+		return get_class()
+			." { type: "         .@$this->type
+			.", unique_id: "     .@$this->unique_id
+			.", status: "        .@$this->status
+			.", currency: "      .@$this->currency
+			.", amount: "        .@$this->amount
+			.", transaction_id: ".@$this->transaction_id
+			.", timestamp: "     .@$this->timestamp
+			.", transactions: "  .$trxs
+			.", error: "         .@$this->error
+			."}";
+	}
 
 	/**
 	* do NOT use! for internal use only!

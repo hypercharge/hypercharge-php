@@ -19,7 +19,7 @@ class TransactionTest extends HyperchargeTestCase {
 	function testToString() {
 		$t = new Transaction($this->response('debit_sale.xml'));
 		$this->assertEqual($t.''
-			,'Hypercharge\Transaction { type: debit_sale, unique_id: 5e2cbbad71d2b13432323153c208223a, status: approved, transaction_id: 119643250547501c79d8295, timestamp: 2007-11-30T14:21:48Z, error: }');
+			,'Hypercharge\Transaction { type: debit_sale, unique_id: 5e2cbbad71d2b13432323153c208223a, status: approved, currency: USD, amount: 9000, transaction_id: 119643250547501c79d8295, timestamp: 2007-11-30T14:21:48Z, error: }');
 	}
 
 	function testStatusHelper() {

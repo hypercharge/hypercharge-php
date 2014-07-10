@@ -125,10 +125,6 @@ class PaymentTest extends HyperchargeTestCase {
 		$this->assertEqual($payment->unique_id, 'f002f4b2c726f8b7312fccbcda990a3c');
 		$this->assertEqual($payment->amount, 5000);
 
-		$trx = $payment->transaction;
-		$this->assertIsA($trx, 'Hypercharge\Transaction');
-		$this->assertEqual($trx->unique_id, '33d0ea86616a89d091a300c25ac683cf');
-
 		$trxs = $payment->transactions;
 		$this->assertIsA($trxs, 'array');
 		$this->assertEqual(count($trxs), 1);
@@ -223,5 +219,31 @@ class PaymentTest extends HyperchargeTestCase {
 		}
 	}
 
+	function testToStringWithoutTrx() {
+		$data = $this->parseXml($this->schemaResponse('WpfPayment_find.xml'));
+		unset($data['payment']['payment_transaction']);
+		$p = new Payment($data['payment']);
+		$this->assertEqual($p.'', "Hypercharge\Payment { type: WpfPayment, unique_id: f002f4b2c726f8b7312fccbcda990a3c, status: approved, currency: USD, amount: 5000, transaction_id: 0AF671AF-4134-4BE7-BDF0-26E38B74106E---d8981080a4f701303cf4542696cde09d, timestamp: 2013-05-22T10:23:59Z, transactions: [], error: }");
+	}
+
+	function testToStringWithOneTrx() {
+		$data = $this->parseXml($this->schemaResponse('WpfPayment_find.xml'));
+		$p = new Payment($data['payment']);
+		$this->assertEqual($p.'', "Hypercharge\Payment { type: WpfPayment, unique_id: f002f4b2c726f8b7312fccbcda990a3c, status: approved, currency: USD, amount: 5000, transaction_id: 0AF671AF-4134-4BE7-BDF0-26E38B74106E---d8981080a4f701303cf4542696cde09d, timestamp: 2013-05-22T10:23:59Z, transactions: [sale:33d0ea86616a89d091a300c25ac683cf], error: }");
+	}
+
+	function testToStringWithTwoTrx() {
+		$data = $this->parseXml($this->schemaResponse('WpfPayment_find.xml'));
+
+		$trx1 = $trx2 = $data['payment']['payment_transaction'];
+
+		$trx2['unique_id'] = 'abcdf4b2c726f8b7312fccbcda99efgh';
+		$trx2['transaction_type'] = 'refund';
+
+		$data['payment']['payment_transaction'] = array($trx1, $trx2);
+
+		$p = new Payment($data['payment']);
+		$this->assertEqual($p.'', "Hypercharge\Payment { type: WpfPayment, unique_id: f002f4b2c726f8b7312fccbcda990a3c, status: approved, currency: USD, amount: 5000, transaction_id: 0AF671AF-4134-4BE7-BDF0-26E38B74106E---d8981080a4f701303cf4542696cde09d, timestamp: 2013-05-22T10:23:59Z, transactions: [sale:33d0ea86616a89d091a300c25ac683cf, refund:abcdf4b2c726f8b7312fccbcda99efgh], error: }");
+	}
 }
 

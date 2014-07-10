@@ -17,12 +17,15 @@ class Transaction implements IResponse {
 
 	public $unique_id;
 	public $transaction_type;
+	// alias $transaction_type
+	public $type;
 	public $error = null;
 	public $redirect_url = null;
 
 	function __construct($p) {
 		Helper::assign($this, $p);
 
+		$this->type = $this->transaction_type;
 		$this->error = Errors\errorFromResponseHash($p);
 		unset($this->code);
 		unset($this->message);
@@ -93,9 +96,11 @@ class Transaction implements IResponse {
 
 	function __toString() {
 		return get_class()
-			." { type: "         .@$this->transaction_type
+			." { type: "         .@$this->type
 			.", unique_id: "     .@$this->unique_id
 			.", status: "        .@$this->status
+			.", currency: "      .@$this->currency
+			.", amount: "        .@$this->amount
 			.", transaction_id: ".@$this->transaction_id
 			.", timestamp: "     .@$this->timestamp
 			.", error: "         .@$this->error
