@@ -17,6 +17,8 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		$data = self::schemaRequest($file);
 		$trx = $data['payment_transaction'];
 
+		$this->injectRedirectUrls($trx, 'transaction');
+
 		// move credit card expiration year into the future
 		if(isset($trx['expiration_year'])) {
 			$trx['expiration_year'] = (string) (date('Y') + 2);

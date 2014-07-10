@@ -47,10 +47,13 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 		$payment = Payment::wpf($data);
 	}
 
+
 	// TODO test more exception reasons
 
 	function testWpfCreate() {
 		$data = $this->fixture('wpf_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
+
 		$payment = Payment::wpf($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew(), 'isNew %s '. print_r($payment, true));
@@ -72,6 +75,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileCreate() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew(), 'isNew %s');
@@ -95,6 +99,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testWpfRemoteValidationError() {
 		$data = $this->fixture('wpf_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		unset($data['billing_address']);
 		$payment = Payment::wpf($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
@@ -116,6 +121,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileRemoteValidationError() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		unset($data['billing_address']);
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
@@ -137,6 +143,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testWpfCancel() {
 		$data = $this->fixture('wpf_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$payment = Payment::wpf($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew());
@@ -155,6 +162,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileCancel() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew());
@@ -188,6 +196,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileFind() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew());
@@ -210,6 +219,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileFindWithWrongId() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
 		$this->assertTrue($payment->isNew());
@@ -229,6 +239,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileSubmit() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		// create MobilePayment
 		$payment = Payment::mobile($data);
 		$this->assertIsA($payment, 'Hypercharge\Payment');
@@ -253,6 +264,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 
 	function testMobileSubmitAuthorize() {
 		$data = $this->fixture('mobile_payment_request_simple.json');
+		$this->injectRedirectUrls($data);
 		$data['transaction_types'][] = 'authorize';
 		// create MobilePayment for authorize
 		$payment = Payment::mobile($data);

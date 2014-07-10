@@ -187,4 +187,29 @@ abstract class HyperchargeTestCase extends \UnitTestCase {
 		Config::setFactory($factory);
 		return $curl->shouldReceive('jsonRequest');
 	}
+
+	/**
+	* overwrites notification_url and return_*_url in Payment and Transaction data if the fields exist.
+	* @param array $data  data is modified itself
+	* @param string $type 'payment' or 'transaction'
+	* @return void
+	*/
+	function injectRedirectUrls(&$data, $type='payment') {
+		if(!isset($this->credentials->myShopBaseUrl)) return;
+
+		$baseUrl = $this->credentials->myShopBaseUrl;
+
+		if(isset($data['notification_url'])) {
+			$data['notification_url']   = "$baseUrl/{$type}_notification_handler.php";
+		}
+		if(isset($data['return_success_url'])) {
+			$data['return_success_url'] = "$baseUrl/success.html";
+		}
+		if(isset($data['return_failure_url'])) {
+			$data['return_failure_url'] = "$baseUrl/failure.html";
+		}
+		if(isset($data['return_cancel_url'])) {
+			$data['return_cancel_url']  = "$baseUrl/canceled.html";
+		}
+	}
 }
