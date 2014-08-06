@@ -383,6 +383,86 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	 	return $trx;
 	}
 
+	function testSepaDebitSale() {
+		$data = $this->fixture('sepa_debit_sale.json');
+		$data['currency'] = 'USD';
+		try {
+			$trx = Transaction::sepa_debit_sale($this->channelToken, $data);
+			$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+			$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+			$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+			$this->assertEqual($trx->transaction_type, 'sepa_debit_sale');
+			$this->assertEqual($trx->amount  , $data['amount']);
+			$this->assertEqual($trx->currency, $data['currency']);
+		 	$this->assertNull(@$trx->redirect_url);
+		 	$this->assertFalse($trx->shouldRedirect());
+		} catch(\Exception $e) {
+			print_r($e->errors);
+			throw $e;
+		}
+	}
+
+	function testInitRecurringSepaDebitSale() {
+		$data = $this->fixture('init_recurring_sepa_debit_sale.json');
+		$data['currency'] = 'USD';
+		try {
+			$trx = Transaction::init_recurring_sepa_debit_sale($this->channelToken, $data);
+			$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+			$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+			$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+			$this->assertEqual($trx->transaction_type, 'init_recurring_sepa_debit_sale');
+			$this->assertEqual($trx->amount  , $data['amount']);
+			$this->assertEqual($trx->currency, $data['currency']);
+		 	$this->assertNull(@$trx->redirect_url);
+		 	$this->assertFalse($trx->shouldRedirect());
+		} catch(\Exception $e) {
+			print_r($e->errors);
+			throw $e;
+		}
+		return $trx;
+	}
+
+	// TODO needs the init trx to be approved but is pending_async.
+	// function testRecurringSepaDebitSale() {
+	// 	$data = $this->fixture('recurring_sepa_debit_sale.json');
+	// 	$sale = $this->testInitRecurringSepaDebitSale();
+	// 	$data['reference_id'] = $sale->unique_id;
+	// 	$data['currency'] = 'USD';
+	// 	try {
+	// 		$trx = Transaction::recurring_sepa_debit_sale($this->channelToken, $data);
+	// 		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+	// 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+	// 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+	// 		$this->assertEqual($trx->transaction_type, 'recurring_sepa_debit_sale');
+	// 		$this->assertEqual($trx->amount  , $data['amount']);
+	// 		$this->assertEqual($trx->currency, $data['currency']);
+	// 	 	$this->assertNull(@$trx->redirect_url);
+	// 	 	$this->assertFalse($trx->shouldRedirect());
+	// 	} catch(\Exception $e) {
+	// 		print_r($e->errors);
+	// 		throw $e;
+	// 	}
+	// }
+
+	function testInitRecurringSepaDebitAuthorize() {
+		$data = $this->fixture('init_recurring_sepa_debit_authorize.json');
+		$data['currency'] = 'USD';
+		try {
+			$trx = Transaction::init_recurring_sepa_debit_authorize($this->channelToken, $data);
+			$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+			$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+			$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+			$this->assertEqual($trx->transaction_type, 'init_recurring_sepa_debit_authorize');
+			$this->assertEqual($trx->amount  , $data['amount']);
+			$this->assertEqual($trx->currency, $data['currency']);
+		 	$this->assertNull(@$trx->redirect_url);
+		 	$this->assertFalse($trx->shouldRedirect());
+		} catch(\Exception $e) {
+			print_r($e->errors);
+			throw $e;
+		}
+	}
+
 	function testGiroPaySale() {
 		$data = $this->fixture('giro_pay_sale.json');
 		$data['currency'] = 'EUR';
@@ -432,19 +512,24 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	function testPurchaseOnAccount() {
 		$data = $this->fixture('purchase_on_account.json');
 		$data['currency'] = 'USD';
-		$trx = Transaction::purchase_on_account($this->channelToken, $data);
-		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
-		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
-		$this->assertIsA($trx, 'Hypercharge\Transaction');
-		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
-		$this->assertEqual($trx->transaction_type, 'purchase_on_account');
-		$this->assertEqual($trx->amount  , $data['amount']);
-		$this->assertEqual($trx->currency, $data['currency']);
-		$o = Helper::extractRandomId($trx->transaction_id);
-		$this->assertEqual($trx->transaction_id, $data['transaction_id'].'---'.$o->random_id);
-		$this->assertEqual($o->transaction_id, $data['transaction_id']);
-	 	$this->assertNull(@$trx->redirect_url);
-	 	$this->assertFalse($trx->shouldRedirect());
+		try {
+			$trx = Transaction::purchase_on_account($this->channelToken, $data);
+			$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+			$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+			$this->assertIsA($trx, 'Hypercharge\Transaction');
+			$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s, status: '.$trx->status);
+			$this->assertEqual($trx->transaction_type, 'purchase_on_account');
+			$this->assertEqual($trx->amount  , $data['amount']);
+			$this->assertEqual($trx->currency, $data['currency']);
+			$o = Helper::extractRandomId($trx->transaction_id);
+			$this->assertEqual($trx->transaction_id, $data['transaction_id'].'---'.$o->random_id);
+			$this->assertEqual($o->transaction_id, $data['transaction_id']);
+			$this->assertNull(@$trx->redirect_url);
+			$this->assertFalse($trx->shouldRedirect());
+		} catch(\Exception $e) {
+			print_r($e->errors);
+			throw $e;
+		}
 	}
 
 	function testPayInAdvance() {

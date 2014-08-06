@@ -26,6 +26,7 @@ class JsonSchema {
 
 		$error = JsonSchemaValidator::validate($schemaName, $data);
 		if(!empty($error)) {
+			print_r($error);
 			throw new Errors\ValidationError($error);
 		}
 	}

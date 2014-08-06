@@ -24,6 +24,7 @@ class PaymentIntegrationTest extends HyperchargeTestCase {
 			,"pay_safe_card_sale"
 			,"payment_on_delivery"
 			,"purchase_on_account"
+			,"sepa_direct_debit"
 		);
 		sort($this->expected_payment_methods);
 	}

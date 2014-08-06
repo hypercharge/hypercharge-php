@@ -27,4 +27,5 @@
 		"classmap": ["lib/Hypercharge/"]
 		,"files": ["lib/Hypercharge/errors.php"]
 	}
+	,"minimum-stability":"dev"
 }

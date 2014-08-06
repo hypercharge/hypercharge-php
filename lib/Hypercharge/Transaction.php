@@ -267,6 +267,36 @@ class Transaction implements IResponse {
 	* @return Hypercharge\Transaction
 	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
+	static function sepa_debit_sale($channelToken, $request) {
+		return self::_call('sepa_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function init_recurring_sepa_debit_sale($channelToken, $request) {
+		return self::_call('init_recurring_sepa_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function init_recurring_sepa_debit_authorize($channelToken, $request) {
+		return self::_call('init_recurring_sepa_debit_authorize', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
 	static function giro_pay_sale($channelToken, $request) {
 		return self::_call('giro_pay_sale', $request, $channelToken);
 	}
@@ -331,6 +361,16 @@ class Transaction implements IResponse {
 	*/
 	static function recurring_debit_sale($channelToken, $request) {
 		return self::_call('recurring_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function recurring_sepa_debit_sale($channelToken, $request) {
+		return self::_call('recurring_sepa_debit_sale', $request, $channelToken);
 	}
 
 	/**
