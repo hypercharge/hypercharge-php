@@ -27,9 +27,10 @@
 		"classmap": ["lib/Hypercharge/"]
 		,"files": ["lib/Hypercharge/errors.php"]
 	}
-	,"minimum-stability":"dev"
 
-	,"repositories": [
+
+	,"___minimum-stability":"dev"
+	,"___repositories": [
 		{
 			"type": "vcs",
 			"url" : "/Users/janmentzel/work/hypercharge/hypercharge-schema"
