@@ -20,6 +20,18 @@ class TransactionUrl implements IUrl {
 			'process', 'reconcile', 'reconcile/by_date'
 			,'recurring/schedules_by_date', 'recurring/unsubscribe', 'recurring/activate', 'recurring/deactivate'
 		);
+		if($mode == Config::ENV_SANDBOX) {
+			array_push($allowedActions
+				,'bogus_event/chargeback'
+				,'bogus_event/pre_arbitration'
+				,'bogus_event/chargeback_reversal'
+				,'bogus_event/retrieval'
+				,'bogus_event/deposit'
+				,'bogus_event/debit_chargeback'
+				,'bogus_event/reject'
+				,'bogus_event/charge'
+			);
+		}
 		if(!in_array($action, $allowedActions)) throw new \Exception('action must be one of "'.join($allowedActions, '", "').'" but got "'.$action.'"');
 
 		$this->mode    = $mode;

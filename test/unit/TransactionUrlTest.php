@@ -30,8 +30,13 @@ class TransactionUrlTest extends \UnitTestCase {
 		$url = new TransactionUrl('wrong', 'channel-token');
 	}
 
-	function testWrongAction() {
+	function testWrongActionAtLive() {
 		$this->expectException(new \Exception('action must be one of "process", "reconcile", "reconcile/by_date", "recurring/schedules_by_date", "recurring/unsubscribe", "recurring/activate", "recurring/deactivate" but got "wrong"'));
+		$url = new TransactionUrl(Config::ENV_LIVE, 'channel-token', 'wrong');
+	}
+
+	function testWrongActionAtSandbox() {
+		$this->expectException(new \Exception('action must be one of "process", "reconcile", "reconcile/by_date", "recurring/schedules_by_date", "recurring/unsubscribe", "recurring/activate", "recurring/deactivate", "bogus_event/chargeback", "bogus_event/pre_arbitration", "bogus_event/chargeback_reversal", "bogus_event/retrieval", "bogus_event/deposit", "bogus_event/debit_chargeback", "bogus_event/reject", "bogus_event/charge" but got "wrong"'));
 		$url = new TransactionUrl(Config::ENV_SANDBOX, 'channel-token', 'wrong');
 	}
 }

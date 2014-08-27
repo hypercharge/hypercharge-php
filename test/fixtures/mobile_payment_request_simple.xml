@@ -16,4 +16,12 @@
     <zip_code>10624</zip_code>
     <country>DE</country>
   </billing_address>
+  <shipping_address>
+    <first_name>Liefer GmbH</first_name>
+    <last_name>z.Hd. Hr. Johanson</last_name>
+    <address1>Lieferstraße 7a</address1>
+    <city>Berlin</city>
+    <zip_code>10713</zip_code>
+    <country>DE</country>
+  </shipping_address>
 </payment>

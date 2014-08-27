@@ -422,27 +422,33 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 		return $trx;
 	}
 
-	// TODO needs the init trx to be approved but is pending_async.
-	// function testRecurringSepaDebitSale() {
-	// 	$data = $this->fixture('recurring_sepa_debit_sale.json');
-	// 	$sale = $this->testInitRecurringSepaDebitSale();
-	// 	$data['reference_id'] = $sale->unique_id;
-	// 	$data['currency'] = 'USD';
-	// 	try {
-	// 		$trx = Transaction::recurring_sepa_debit_sale($this->channelToken, $data);
-	// 		$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
-	// 		$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
-	// 		$this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
-	// 		$this->assertEqual($trx->transaction_type, 'recurring_sepa_debit_sale');
-	// 		$this->assertEqual($trx->amount  , $data['amount']);
-	// 		$this->assertEqual($trx->currency, $data['currency']);
-	// 	 	$this->assertNull(@$trx->redirect_url);
-	// 	 	$this->assertFalse($trx->shouldRedirect());
-	// 	} catch(\Exception $e) {
-	// 		print_r($e->errors);
-	// 		throw $e;
-	// 	}
-	// }
+	function testRecurringSepaDebitSale() {
+		$init = $this->testInitRecurringSepaDebitSale();
+
+		$charged = Sandbox::charge_depit_sale($this->channelToken, $init->unique_id);
+
+		$this->assertEqual($charged->unique_id, $init->unique_id);
+		$this->assertEqual($charged->status, 'approved');
+		$this->assertTrue($charged->isApproved());
+
+		$data = $this->fixture('recurring_sepa_debit_sale.json');
+		$data['reference_id'] = $init->unique_id;
+		$data['currency'] = 'USD';
+		try {
+			$trx = Transaction::recurring_sepa_debit_sale($this->channelToken, $data);
+			$this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+			$this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+			$this->assertTrue($trx->isApproved(), 'isApproved() %s');
+			$this->assertEqual($trx->transaction_type, 'recurring_sepa_debit_sale');
+			$this->assertEqual($trx->amount  , $data['amount']);
+			$this->assertEqual($trx->currency, $data['currency']);
+			$this->assertNull(@$trx->redirect_url);
+			$this->assertFalse($trx->shouldRedirect());
+		} catch(\Exception $e) {
+			print_r($e->errors);
+			throw $e;
+		}
+	}
 
 	function testInitRecurringSepaDebitAuthorize() {
 		$data = $this->fixture('init_recurring_sepa_debit_authorize.json');

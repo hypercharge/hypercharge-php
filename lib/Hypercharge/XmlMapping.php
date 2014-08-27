@@ -11,6 +11,7 @@ class XmlMapping {
 
 	private $classes = array(
 		'billing_address' => 'Address'
+		,'shipping_address' => 'Address'
 		,'risk_params' => 'RiskParams'
 		,'payment_transaction' => 'Transaction'
 		,'mpi_params' => 'MpiParams'

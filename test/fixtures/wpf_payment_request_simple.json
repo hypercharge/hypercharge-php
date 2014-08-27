@@ -20,4 +20,12 @@
 		,"zip_code": "10624"
 		,"country": "DE"
 	}
+	,"shipping_address": {
+		"first_name": "Liefer GmbH"
+		,"last_name": "z.Hd. Hr. Johanson"
+		,"address1": "Lieferstraße 7a"
+		,"city": "Berlin"
+		,"zip_code": "10713"
+		,"country": "DE"
+	}
 }

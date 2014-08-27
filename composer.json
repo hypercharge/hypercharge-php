@@ -28,4 +28,11 @@
 		,"files": ["lib/Hypercharge/errors.php"]
 	}
 	,"minimum-stability":"dev"
+
+	,"repositories": [
+		{
+			"type": "vcs",
+			"url" : "/Users/janmentzel/work/hypercharge/hypercharge-schema"
+		}
+	]
 }

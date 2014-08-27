@@ -50,6 +50,11 @@ class TransactionRequest implements IRequest {
 	function setBillingAddress(Address $a) {
 		$this->billing_address = $a;
 	}
+
+  function setShippingAddress(Address $a) {
+    $this->shipping_address = $a;
+  }
+
 	function setRiskParams(RiskParams $r) {
 		$this->risk_params = $r;
 	}

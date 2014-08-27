@@ -90,7 +90,7 @@ class ValidationError extends Error {
 			$nProps = count($props);
 			$this->technical_message = $nProps.' affected '.($nProps==1?'property':'properties').': '.join($props, ', ');
 		}
-		if(getenv('DEBUG') == '1') $this->message .= ': '.$this->technical_message;
+		if(getenv('DEBUG') == '1') $this->message .= ': '.$this->technical_message."\n".print_r($this->errors, true);
 		return $n > 0;
 	}
 

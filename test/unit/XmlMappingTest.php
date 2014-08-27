@@ -19,11 +19,13 @@ class XmlMappingTest extends UnitTestCase {
 	function testGetClass() {
 		$m = new Hypercharge\XmlMapping();
 		$this->assertEqual('Hypercharge\Address', $m->getClass('billing_address'));
+		$this->assertEqual('Hypercharge\Address', $m->getClass('shipping_address'));
 		$this->assertEqual('Hypercharge\RiskParams', $m->getClass('risk_params'));
 		$this->assertEqual('Hypercharge\Transaction', $m->getClass('payment_transaction'));
 		$this->assertEqual('Hypercharge\MpiParams', $m->getClass('mpi_params'));
 		$this->assertEqual('Hypercharge\Scheduler', $m->getClass('recurring_schedule'));
 	}
+
 
 	function testGetConverter() {
 		$m = new Hypercharge\XmlMapping();
