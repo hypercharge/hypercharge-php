@@ -17,14 +17,17 @@ class TransactionRequest implements IRequest {
       ,'referenced_fund_transfer'
       ,'debit_sale'
       ,'sepa_debit_sale'
+      ,'gtd_sepa_debit_sale'
       ,'init_recurring_sepa_debit_sale'
+      ,'init_recurring_gtd_sepa_debit_sale'
       ,'init_recurring_sepa_debit_authorize'
+      ,'init_recurring_gtd_sepa_debit_authorize'
       ,'direct_pay24_sale'
       ,'giro_pay_sale'
       ,'pay_safe_card_sale'
       ,'init_recurring_authorize'
-      //,'debit_chargeback'
       ,'purchase_on_account'
+      ,'gtd_purchase_on_account'
       ,'pay_in_advance'
       ,'payment_on_delivery'
       ,'pay_pal'
@@ -32,7 +35,7 @@ class TransactionRequest implements IRequest {
       ,'init_recurring_debit_authorize'
       ,'recurring_debit_sale'
       ,'recurring_sepa_debit_sale'
-      //,'barzahlen_sale'
+      ,'recurring_gtd_sepa_debit_sale'
     );
 
 	function __construct($data) {

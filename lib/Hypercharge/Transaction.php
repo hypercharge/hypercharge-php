@@ -277,6 +277,16 @@ class Transaction implements IResponse {
 	* @return Hypercharge\Transaction
 	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
+	static function gtd_sepa_debit_sale($channelToken, $request) {
+		return self::_call('gtd_sepa_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
 	static function init_recurring_sepa_debit_sale($channelToken, $request) {
 		return self::_call('init_recurring_sepa_debit_sale', $request, $channelToken);
 	}
@@ -287,8 +297,28 @@ class Transaction implements IResponse {
 	* @return Hypercharge\Transaction
 	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
 	*/
+	static function init_recurring_gtd_sepa_debit_sale($channelToken, $request) {
+		return self::_call('init_recurring_gtd_sepa_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
 	static function init_recurring_sepa_debit_authorize($channelToken, $request) {
 		return self::_call('init_recurring_sepa_debit_authorize', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function init_recurring_gtd_sepa_debit_authorize($channelToken, $request) {
+		return self::_call('init_recurring_gtd_sepa_debit_authorize', $request, $channelToken);
 	}
 
 	/**
@@ -333,6 +363,17 @@ class Transaction implements IResponse {
 	}
 
 	/**
+	* guaranteed Kauf auf Rechnung
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function gtd_purchase_on_account($channelToken, $request) {
+		return self::_call('gtd_purchase_on_account', $request, $channelToken);
+	}
+
+	/**
 	* Vorkasse
 	* @param string $channelToken
 	* @param mixed $request array or Hypercharge\TransactionRequest
@@ -371,6 +412,16 @@ class Transaction implements IResponse {
 	*/
 	static function recurring_sepa_debit_sale($channelToken, $request) {
 		return self::_call('recurring_sepa_debit_sale', $request, $channelToken);
+	}
+
+	/**
+	* @param string $channelToken
+	* @param mixed $request array or Hypercharge\TransactionRequest
+	* @return Hypercharge\Transaction
+	* @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+	*/
+	static function recurring_gtd_sepa_debit_sale($channelToken, $request) {
+		return self::_call('recurring_gtd_sepa_debit_sale', $request, $channelToken);
 	}
 
 	/**
