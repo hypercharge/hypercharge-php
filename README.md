@@ -43,7 +43,7 @@ Show what has been installed
 ```sh
 $ php composer.phar show --installed
 hypercharge/hypercharge-php    1.25.5 Hypercharge PHP Library / SDK
-hypercharge/hypercharge-schema 1.25.1 Hypercharge API JSON Schema
+hypercharge/hypercharge-schema 1.25.2 Hypercharge API JSON Schema
 hypercharge/json-schema-php    1.3.3  A library to validate a json schema.
 ```
 nice.
