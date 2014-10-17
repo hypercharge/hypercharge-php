@@ -71,7 +71,7 @@ class Curl implements IHttpsClient {
 
 		curl_setopt($ch, CURLOPT_URL, $url);
 
-		$this->setHeader('text/xml', array('Content-Length: '. mb_strlen($xmlStr)));
+		$this->setHeader('text/xml', array('Content-Length: '. strlen($xmlStr)));
 
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $xmlStr);
 
