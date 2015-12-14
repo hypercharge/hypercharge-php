@@ -434,6 +434,16 @@ class Transaction implements IResponse {
 		return self::_call('pay_safe_card_sale', $request, $channelToken);
 	}
 
+    /**
+     * @param string $channelToken
+     * @param mixed $request array or Hypercharge\TransactionRequest
+     * @return Hypercharge\Transaction
+     * @throws Hypercharge\Errors\Error if no transaction created on hypercharge server
+     */
+    static function eps_sale($channelToken, $request) {
+        return self::_call('eps_sale', $request, $channelToken);
+    }
+
 	/**
 	* called "Reconcile" "Single Transaction" in API doc
 	* @param string $channelToken

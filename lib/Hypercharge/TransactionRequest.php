@@ -36,6 +36,7 @@ class TransactionRequest implements IRequest {
       ,'recurring_debit_sale'
       ,'recurring_sepa_debit_sale'
       ,'recurring_gtd_sepa_debit_sale'
+      , 'eps_sale'
     );
 
 	function __construct($data) {

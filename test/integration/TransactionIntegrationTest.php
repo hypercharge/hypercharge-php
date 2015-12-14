@@ -715,6 +715,20 @@ class TransactionIntegrationTest extends HyperchargeTestCase {
 	 	$this->assertTrue($trx->shouldRedirect());
 	}
 
+    function testEpsSale() {
+        $data = $this->fixture('eps_sale.json');
+        $data['currency'] = 'EUR';
+        $trx = Transaction::giro_pay_sale($this->credentials->channelTokens->EUR, $data);
+        $this->assertNull($trx->error, "error %s , uid: $trx->unique_id, error:".$trx->error);
+        $this->assertPattern('/^[0-9a-f]{32}$/', $trx->unique_id);
+        $this->assertTrue($trx->isPendingAsync(), 'isPendingAsync() %s');
+        $this->assertEqual($trx->transaction_type, 'eps_sale');
+        $this->assertEqual($trx->amount  , $data['amount']);
+        $this->assertEqual($trx->currency, $data['currency']);
+        $this->assertPattern('/\/redirect\/to_acquirer\//', $trx->redirect_url);
+        $this->assertTrue($trx->shouldRedirect());
+    }
+
 	function testFind() {
 		$sale = $this->testSale();
 		$trx = Transaction::find($this->channelToken, $sale->unique_id);
