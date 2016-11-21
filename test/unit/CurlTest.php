@@ -13,11 +13,14 @@ class CurlTest extends HyperchargeTestCase {
 		} catch(Errors\NetworkError $exe) {
 			$this->assertEqual('https://test.hypercharge.net/eine/falsche/url', $exe->url);
 			$this->assertIdentical(404, $exe->http_status);
-			$this->assertEqual('The requested URL returned error: 404', $exe->technical_message);
+			$this->assertEqual('The requested URL returned error: 404 Not Found', $exe->technical_message);
 			$this->assertPattern('/^Array\n\(\n/', $exe->body);
 		}
 	}
-
+        
+        //TODO: failed equality tests!
+        //1. Wrong format ("404" vs. "404 Not Found")
+        //2. Wrong code "404" vs. "401"
 	function testPostToValidUrlShouldReturnBody() {
 		try {
 			$curl = new Curl('user', 'passw');
@@ -75,9 +78,10 @@ class CurlTest extends HyperchargeTestCase {
 		$this->fail('expected NetworkError but got none!');
 	}
 
+        //Throws 401 in fact!
 	function testJsonGetToInValidUrlShouldThrow() {
 		if(!$this->credentials('sandbox')) return;
-
+                
 		try {
 			$curl = new Curl($this->credentials->user, $this->credentials->password);
 			$curl->jsonGet(new v2\Url('sandbox', 'scheduler/123455668798797'));
