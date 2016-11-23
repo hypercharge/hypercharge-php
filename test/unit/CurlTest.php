@@ -18,10 +18,11 @@ class CurlTest extends HyperchargeTestCase {
 		}
 	}
         
+        //Returns "Connection to payment Gateway failed." Is it a security reason?
 	function testPostToValidUrlShouldReturnBody() {
 		try {
 			$curl = new Curl('user', 'passw');
-			$response = $curl->xmlPost('https://test.hypercharge.net', '');
+			$response = $curl->xmlPost('https://test.hypercharge.net/', '');
 			// $response = '2013-11-12 10:54:00 BNN'; // invalid time zone
 			// $response = 'Sat Apr 27 09:41:53 UTC 2013'; // valid
 			// $response = '2013-11-12 19:41:53 UTC'; // valid
