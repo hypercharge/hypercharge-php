@@ -39,10 +39,10 @@ class AddressTest extends UnitTestCase {
   <first_name>Hans</first_name>
   <last_name>Hübner</last_name>
   <address1>Kuhrfürstenstr. 124</address1>
-  <address2></address2>
+  <address2/>
   <zip_code>10578</zip_code>
   <city>Berlin</city>
-  <state></state>
+  <state/>
   <country>DE</country>
 </r>
 ');
