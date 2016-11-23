@@ -18,13 +18,10 @@ class CurlTest extends HyperchargeTestCase {
 		}
 	}
         
-        //TODO: failed equality tests!
-        //1. Wrong format ("404" vs. "404 Not Found")
-        //2. Wrong code "404" vs. "401"
 	function testPostToValidUrlShouldReturnBody() {
 		try {
 			$curl = new Curl('user', 'passw');
-			$response = $curl->xmlPost('https://test.hypercharge.net/', '');
+			$response = $curl->xmlPost('https://test.hypercharge.net', '');
 			// $response = '2013-11-12 10:54:00 BNN'; // invalid time zone
 			// $response = 'Sat Apr 27 09:41:53 UTC 2013'; // valid
 			// $response = '2013-11-12 19:41:53 UTC'; // valid
@@ -78,7 +75,6 @@ class CurlTest extends HyperchargeTestCase {
 		$this->fail('expected NetworkError but got none!');
 	}
 
-        //Throws 401 in fact!
 	function testJsonGetToInValidUrlShouldThrow() {
 		if(!$this->credentials('sandbox')) return;
                 
